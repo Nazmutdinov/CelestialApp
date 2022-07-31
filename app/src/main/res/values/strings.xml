@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">CelestialApp</string>
+    <string name="temp">Проба бокового меню</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="fragment_details_title">Detailed data</string>
+    <string name="fragment_image_title">Photo %s</string>
+    <string name="fragment_search_results_title">Searching results</string>
+    <string name="fragment_keyword_manager_title">Keywords manager</string>
+    <string name="search_button_same">Search same</string>
+    <string name="add_button_keyword">Add keyword</string>
+
+    <string name="menu_item1">Moon</string>
+    <string name="menu_item2">Planets</string>
+    <string name="menu_item2_1">Mercury</string>
+    <string name="menu_item2_2">Venus</string>
+    <string name="menu_item2_3">Mars</string>
+    <string name="menu_item2_4">Jupiter</string>
+    <string name="menu_item2_5">Saturn</string>
+    <string name="menu_item2_6">Uranus</string>
+    <string name="menu_item2_7">Neptune</string>
+    <string name="menu_item2_8">Pluto</string>
+    <string name="menu_item3">Galaxies</string>
+
+    <!-- тексты для диалога -->
+    <string name="add_keyword_dialog_title">Add new keyword</string>
+    <string name="add_keyword_dialog_message">Enter name</string>
+
+    <!-- кнопки для диалога -->
+    <string name="dialog_button_add">Add</string>
+    <string name="dialog_button_OK">OK</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_no">No</string>
+    <string name="dialog_button_yes">Yes</string>
+
+    <string name="showDeleteConfirmationDialogTitle">Delete keyword %s</string>
+    <string name="showDeleteConfirmationDialogMessage">Are you sure that you will dont crying?</string>
+
+    <!-- ошибки для ресурсов-->
+    <string name="pagingSourceFactoryError">thats all, tehe is no more items</string>
+    <string name="insertKeywordDataError">error inserting keyword and getting keywordId</string>
+    <string name="insertCelestialDataError">error inserting celestial</string>
+
+
+    <!-- сообщения в окне-->
+    <string name="getKeywordIdError">there is no key %s</string>
+    <string name="getCelestialError">there is no celestial with nasa id %s</string>
+    <string name="getKeywordsByCelestialIdError">there is no celestial with keywords</string>
+    <string name="nonDefineError">Non defined error when saving data</string>
+    <string name="insertKeywordDataUseCaseError">There is keyword already exists</string>
+    <string name="bindKeywordMessage">Keyword bound</string>
+    <string name="unbindKeywordMessage">Keyword unbound</string>
+    <string name="addKeywordMessage">Keyword added</string>
+    <string name="deleteKeywordMessage">Keyword deleted</string>
+
+    <!-- строки для utils-->
+    <string name="this_year">this year</string>
+    <string name="year_ago">year ago</string>
+    <string name="years_ago1">%d years ago</string>
+    <string name="years_ago2">%d years ago</string>
+    <string name="month_ago">month ago</string>
+    <string name="months_ago1">%d months ago</string>
+    <string name="months_ago2">%d months ago</string>
+    <string name="today">today</string>
+    <string name="yesterday">yesterday</string>
+    <string name="days_ago1">%d days ago</string>
+    <string name="days_ago2">%d days ago</string>
+
+    <!-- строки для src тегов-->
+    <string name="tag_test_text">Jupiter</string>
+</resources>

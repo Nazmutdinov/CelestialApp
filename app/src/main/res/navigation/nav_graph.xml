@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.celestialapp.presentation.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.celestialapp.presentation.fragments.DetailsFragment"
+        android:label="DetailsFragment"
+        tools:layout="@layout/fragment_details">
+        <argument
+            android:name="nasaId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_detailsFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+        <argument
+            android:name="imagePath"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_detailsFragment_to_zoomFragment"
+            app:destination="@id/zoomFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.celestialapp.presentation.fragments.SearchFragment"
+        android:label="SearchFragment"
+        tools:layout="@layout/fragment_search_results"
+        >
+        <argument
+            android:name="keywords"
+            app:argType="string[]" />
+        <action
+            android:id="@+id/action_searchFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/favouriteFragment"
+        android:name="com.example.celestialapp.presentation.fragments.FavouriteFragment"
+        android:label="FavouriteFragment"
+        tools:layout="@layout/fragment_favourite"
+        >
+        <action
+            android:id="@+id/action_favouriteFragment_to_keywordsManagerFragment"
+            app:destination="@id/keywordsManagerFragment" />
+        <action
+            android:id="@+id/action_favouriteFragment_to_favouriteDetailsFragment"
+            app:destination="@id/favouriteDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/keywordsManagerFragment"
+        android:name="com.example.celestialapp.presentation.fragments.KeywordsManagerFragment"
+        android:label="KeywordsManagerFragment"
+        tools:layout="@layout/fragment_keywords_manager"
+        />
+    <fragment
+        android:id="@+id/favouriteDetailsFragment"
+        android:name="com.example.celestialapp.presentation.fragments.FavouriteDetailsFragment"
+        android:label="FavouriteDetailsFragment"
+        tools:layout="@layout/fragment_favourite_details"
+        >
+        <argument
+            android:name="nasaId"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_favouriteDetailsFragment_to_zoomFragment"
+            app:destination="@id/zoomFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/zoomFragment"
+        android:name="com.example.celestialapp.presentation.fragments.ZoomFragment"
+        android:label="ZoomFragment"
+        tools:layout="@layout/fragment_zoom"
+        >
+        <argument
+            android:name="nasaId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+</navigation>
