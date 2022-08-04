@@ -23,10 +23,14 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-// окно детализации небесного тела
+/**
+ * Details of celestial: image, description, tages
+ * search same celestials by NASA API keywords
+ */
 @AndroidEntryPoint
 class DetailsFragment : Fragment() {
-    private lateinit var binding: FragmentDetailsBinding
+    private var _binding: FragmentDetailsBinding? = null
+    private val binding: FragmentDetailsBinding get() = _binding!!
 
     private lateinit var toolbarFragment: Toolbar
 
@@ -35,9 +39,7 @@ class DetailsFragment : Fragment() {
     }
 
     @Inject lateinit var dialog: DialogFactory
-
     private var nasaId: String? = null
-
     private val viewModel: DetailedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +54,7 @@ class DetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -64,6 +66,11 @@ class DetailsFragment : Fragment() {
 
         // настройка viewModel
         setupViewModel()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupUI() {
@@ -96,8 +103,6 @@ class DetailsFragment : Fragment() {
                 }
             }
         }
-
-
 
         // слушаем тап по кнопке назад
         toolbarFragment.setNavigationOnClickListener {
@@ -191,11 +196,11 @@ class DetailsFragment : Fragment() {
             descriptionTextView.text = data.description
 
             // если в кэше еще нет картинки подргрузим и сохраним
+
             if (data.image == null) {
                 // берем картинку из сети
                 celestialImageView.load(data.imagePath) {
                     target { drawable ->
-                        Log.d("myTag","drawable ${data.imagePath} ")
                         celestialImageView.setImageDrawable(drawable)
                         viewModel.updateCache(data.nasaId, drawable.toBitmap())
                     }
@@ -208,8 +213,6 @@ class DetailsFragment : Fragment() {
                     }
                 }
             }
-
-
         }
     }
 

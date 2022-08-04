@@ -19,7 +19,8 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint
 class FavouriteFragment : Fragment() {
-    private lateinit var binding: FragmentFavouriteBinding
+    private var _binding: FragmentFavouriteBinding? = null
+    private val binding: FragmentFavouriteBinding get() = _binding!!
 
     private val keywordsAdapter: KeywordAdapter by lazy {
         KeywordAdapter(requireContext(), ::keywordTapped)
@@ -35,7 +36,7 @@ class FavouriteFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentFavouriteBinding.inflate(inflater, container, false)
+        _binding = FragmentFavouriteBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -46,6 +47,11 @@ class FavouriteFragment : Fragment() {
 
         // настройка viewModel
         setupViewModel()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     /**

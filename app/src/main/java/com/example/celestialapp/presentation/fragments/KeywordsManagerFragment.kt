@@ -16,11 +16,14 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-
-// Окно управления тегами добавить\удалить тег
+/**
+ * Tags manager fragment: list of tags
+ * add \ delete tag from local database
+ */
 @AndroidEntryPoint
 class KeywordsManagerFragment : Fragment() {
-    lateinit var binding: FragmentKeywordsManagerBinding
+    private var _binding: FragmentKeywordsManagerBinding? = null
+    private val binding: FragmentKeywordsManagerBinding get() = _binding!!
 
     private val adapter: KeywordsManagerAdapter by lazy {
         KeywordsManagerAdapter()
@@ -35,7 +38,7 @@ class KeywordsManagerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentKeywordsManagerBinding.inflate(inflater, container, false)
+        _binding = FragmentKeywordsManagerBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -47,6 +50,11 @@ class KeywordsManagerFragment : Fragment() {
 
         // настройка viewModel
         setupViewModel()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     /**

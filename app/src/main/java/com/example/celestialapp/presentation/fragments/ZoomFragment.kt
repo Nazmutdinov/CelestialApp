@@ -15,11 +15,13 @@ import com.example.celestialapp.presentation.vm.ZoomViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
-
-// окно zoom картинки небесного тела
+/**
+ * Zoom celestial image from cache
+ */
 @AndroidEntryPoint
 class ZoomFragment : Fragment() {
-    private lateinit var binding: FragmentZoomBinding
+    private var _binding: FragmentZoomBinding? = null
+    private val binding: FragmentZoomBinding get() = _binding!!
 
     private lateinit var toolbarFragment: Toolbar
 
@@ -39,7 +41,7 @@ class ZoomFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentZoomBinding.inflate(inflater, container, false)
+        _binding = FragmentZoomBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -49,9 +51,13 @@ class ZoomFragment : Fragment() {
         // настройка интерфейса
         setupUI()
 
-
         // настройка viewModel
         setupViewModel()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupUI() {

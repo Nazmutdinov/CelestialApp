@@ -16,12 +16,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * окно результата поиска небесных тел по заданным тэгам
+ * Search celestials by NASA keywords
+ * getting list of celestials
  */
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
-    private lateinit var binding: FragmentSearchResultsBinding
-
+    private var _binding: FragmentSearchResultsBinding? = null
+    private val binding: FragmentSearchResultsBinding get() = _binding!!
     // список ключевых слов для поиска небесных тел передают из вызывающего фрагмента
     private val keywords = mutableListOf<String>()
 
@@ -46,7 +47,7 @@ class SearchFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentSearchResultsBinding.inflate(inflater, container, false)
+        _binding = FragmentSearchResultsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -57,6 +58,11 @@ class SearchFragment : Fragment() {
 
         // настройка viewModel
         setupViewModel()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     /**

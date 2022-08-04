@@ -21,10 +21,14 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-// окно детализации небесного тела для избранных небесных тел
+/**
+ * Details of favourite celestial with tag: image, description, tages
+ * search same celestials by NASA API keywords
+ */
 @AndroidEntryPoint
 class FavouriteDetailsFragment : Fragment() {
-    private lateinit var binding: FragmentFavouriteDetailsBinding
+    private var _binding: FragmentFavouriteDetailsBinding? = null
+    private val binding: FragmentFavouriteDetailsBinding get() = _binding!!
 
     private lateinit var toolbarFragment: Toolbar
 
@@ -50,7 +54,7 @@ class FavouriteDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentFavouriteDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentFavouriteDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -62,6 +66,11 @@ class FavouriteDetailsFragment : Fragment() {
 
         // настройка viewModel
         setupViewModel()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupUI() {

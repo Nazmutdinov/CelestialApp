@@ -26,6 +26,12 @@ class MainActivity : AppCompatActivity() {
         setupUI()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+    }
+
+    // LOGICS
     /**
      * setup base UI, events
      */
