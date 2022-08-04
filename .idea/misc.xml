@@ -4,6 +4,16 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/celestial_item.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/creation_keyword_dialog.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/fragment_details.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/fragment_favourite.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/fragment_favourite_details.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/fragment_home.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/fragment_keywords_manager.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/fragment_search_results.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/fragment_zoom.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/keyword_item.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/layout/manager_keyword_item.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/admin/AndroidStudioProjects/CelestialApp/app/src/main/res/menu/details_toolbar_menu.xml" value="0.36666666666666664" />
       </map>
     </option>

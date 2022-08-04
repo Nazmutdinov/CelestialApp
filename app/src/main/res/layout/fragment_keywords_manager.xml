@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:weightSum="100"
-    android:padding="8dp">
+    android:padding="@dimen/middle_margin">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"

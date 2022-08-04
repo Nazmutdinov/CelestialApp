@@ -3,6 +3,6 @@
     android:id="@+id/name_text_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="@dimen/middle_margin"
     android:text="@string/tag_test_text">
 </TextView>
