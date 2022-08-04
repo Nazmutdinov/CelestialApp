@@ -2,7 +2,6 @@ package com.example.celestialapp.presentation.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +31,7 @@ class DetailsFragment : Fragment() {
     private var _binding: FragmentDetailsBinding? = null
     private val binding: FragmentDetailsBinding get() = _binding!!
 
-    private lateinit var toolbarFragment: Toolbar
+    private var toolbarFragment: Toolbar? = null
 
     private val adapter: KeywordAdapter by lazy {
         KeywordAdapter(requireContext(), ::keywordTapped)
@@ -105,13 +104,13 @@ class DetailsFragment : Fragment() {
         }
 
         // слушаем тап по кнопке назад
-        toolbarFragment.setNavigationOnClickListener {
+        toolbarFragment?.setNavigationOnClickListener {
             // закрыть окно
             findNavController().popBackStack()
         }
 
         // тап по меню кнопке расшарить фото
-        toolbarFragment.setOnMenuItemClickListener {
+        toolbarFragment?.setOnMenuItemClickListener {
             viewModel.detailedData.value?.let {
                 sharePhoto(it.imagePath)
             }

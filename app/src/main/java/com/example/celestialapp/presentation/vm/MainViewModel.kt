@@ -14,7 +14,7 @@ class MainViewModel @Inject constructor (
     private val myPager: MyPager
 ) : ViewModel() {
     // поток небесных тел из api
-    lateinit var celestialsFlow: Flow<PagingData<CelestialDataItem>>
+    var celestialsFlow: Flow<PagingData<CelestialDataItem>>? = null
 
     /* ключевые слова для поиска из navigation view меню
        по умолчанию это moon

@@ -13,22 +13,21 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private var binding: ActivityMainBinding? = null
-
-    private lateinit var navController: NavController
+    private var _binding: ActivityMainBinding? = null
+    private val binding: ActivityMainBinding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding?.root)
+        _binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setupUI()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        binding = null
+        _binding = null
     }
 
     // LOGICS
@@ -42,16 +41,16 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavigationController() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
+        val navController = navHostFragment.navController
+        val bottomNavigationView = binding.bottomNavigationView
 
         // setup bottom menu
-        val bottomNavigationView = binding?.bottomNavigationView
-        bottomNavigationView?.setupWithNavController(navController)
+        bottomNavigationView.setupWithNavController(navController)
 
-        hideBottomMenuForSomeFragments(bottomNavigationView)
+        hideBottomMenuForSomeFragments(bottomNavigationView, navController)
     }
 
-    private fun hideBottomMenuForSomeFragments(bottomNavigationView: BottomNavigationView?) {
+    private fun hideBottomMenuForSomeFragments(bottomNavigationView: BottomNavigationView, navController: NavController) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 // if we navigate to details, then we don't need navigation
@@ -59,8 +58,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.searchFragment,
                 R.id.favouriteDetailsFragment,
                 R.id.keywordsManagerFragment,
-                R.id.zoomFragment -> bottomNavigationView?.visibility = View.GONE
-                else -> bottomNavigationView?.visibility = View.VISIBLE
+                R.id.zoomFragment -> bottomNavigationView.visibility = View.GONE
+                else -> bottomNavigationView.visibility = View.VISIBLE
             }
         }
     }

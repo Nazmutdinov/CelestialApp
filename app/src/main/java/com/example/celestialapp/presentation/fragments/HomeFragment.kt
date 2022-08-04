@@ -30,11 +30,11 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding: FragmentHomeBinding get() = _binding!!
 
-    private lateinit var toolbar: Toolbar
+    private var toolbar: Toolbar? = null
 
-    private lateinit var drawerLayout: DrawerLayout
+    private var drawerLayout: DrawerLayout? = null
 
-    private lateinit var navigationView: NavigationView
+    private var navigationView: NavigationView? = null
 
     private val adapter: CelestialAdapter by lazy { CelestialAdapter(::celestialItemTapped) }
 
@@ -92,9 +92,9 @@ class HomeFragment : Fragment() {
      */
     private fun setupToolbar() {
         // слушаем тап по меню
-        toolbar.setOnMenuItemClickListener {
+        toolbar?.setOnMenuItemClickListener {
             // открыть navigation view справа-налево
-            drawerLayout.openDrawer(GravityCompat.END, false)
+            drawerLayout?.openDrawer(GravityCompat.END, false)
             true
         }
     }
@@ -103,9 +103,9 @@ class HomeFragment : Fragment() {
      * настройка бокового меню Navigation view
      */
     private fun setupNavigationView() {
-        navigationView.setNavigationItemSelectedListener {
+        navigationView?.setNavigationItemSelectedListener {
             // закрыть navigation view справа-налево
-            drawerLayout.closeDrawer(GravityCompat.END)
+            drawerLayout?.closeDrawer(GravityCompat.END)
 
             // обработаем выбранный пункт
             navigationViewItemTapped(it.itemId)
@@ -141,7 +141,7 @@ class HomeFragment : Fragment() {
      */
     private fun refreshCelestialData(celestialName: CelestialName) {
         // обновим заголовок
-        toolbar.title = celestialName.name
+        toolbar?.title = celestialName.name
 
         // перезапустим процесс получения данных в модели
         val keywords = listOf(celestialName.name)
@@ -170,7 +170,7 @@ class HomeFragment : Fragment() {
     private fun setupViewModel() {
         // слушаем модель на получение списка небесных тел
         lifecycleScope.launch {
-            viewModel.celestialsFlow.collectLatest { pagingData ->
+            viewModel.celestialsFlow?.collectLatest { pagingData ->
                 adapter.submitData(pagingData)
             }
         }

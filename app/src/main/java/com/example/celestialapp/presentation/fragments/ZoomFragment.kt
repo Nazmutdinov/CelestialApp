@@ -23,7 +23,7 @@ class ZoomFragment : Fragment() {
     private var _binding: FragmentZoomBinding? = null
     private val binding: FragmentZoomBinding get() = _binding!!
 
-    private lateinit var toolbarFragment: Toolbar
+    private var toolbarFragment: Toolbar? = null
 
     private var nasaId: String? = null
 
@@ -65,7 +65,7 @@ class ZoomFragment : Fragment() {
             toolbarFragment = toolbar
 
             // слушаем тап по кнопке назад
-            toolbarFragment.setNavigationOnClickListener {
+            toolbarFragment?.setNavigationOnClickListener {
                 // закрыть окно
                 findNavController().popBackStack()
             }

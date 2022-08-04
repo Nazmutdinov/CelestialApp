@@ -30,7 +30,7 @@ class FavouriteDetailsFragment : Fragment() {
     private var _binding: FragmentFavouriteDetailsBinding? = null
     private val binding: FragmentFavouriteDetailsBinding get() = _binding!!
 
-    private lateinit var toolbarFragment: Toolbar
+    private var toolbarFragment: Toolbar? = null
 
     private val adapter: KeywordAdapter by lazy {
         KeywordAdapter(requireContext(), ::keywordTapped)
@@ -99,13 +99,13 @@ class FavouriteDetailsFragment : Fragment() {
         }
 
         // слушаем тап по кнопке назад
-        toolbarFragment.setNavigationOnClickListener {
+        toolbarFragment?.setNavigationOnClickListener {
             // закрыть окно
             findNavController().popBackStack()
         }
 
         // тап по меню кнопке расшарить фото
-        toolbarFragment.setOnMenuItemClickListener {
+        toolbarFragment?.setOnMenuItemClickListener {
             viewModel.detailedData.value?.let {
                 sharePhoto(it.imagePath)
             }

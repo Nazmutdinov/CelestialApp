@@ -101,7 +101,7 @@ class SearchFragment : Fragment() {
 
         // слушаем модель на получение списка небесных тел
         lifecycleScope.launch {
-            viewModel.celestialsFlow.collectLatest {
+            viewModel.celestialsFlow?.collectLatest {
                 adapter.submitData(it)
             }
         }
