@@ -27,14 +27,8 @@ class KeywordsManagerFragment : Fragment() {
     }
 
     @Inject lateinit var dialog: DialogFactory
-//    by lazy {
-//        DialogFactory(requireContext())
-//    }
 
     private val viewModel: KeywordsManagerViewModel by viewModels()
-//    private val viewModel: KeywordsManagerViewModel by lazy {
-//        ViewModelBuilder(requireContext()).buildKeywordsManagerViewModel(this)
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

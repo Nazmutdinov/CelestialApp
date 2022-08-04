@@ -8,11 +8,12 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.celestialapp.R
 import com.example.celestialapp.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
+    private var binding: ActivityMainBinding? = null
 
     private lateinit var navController: NavController
 
@@ -20,49 +21,40 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(binding?.root)
 
-        // настройка интерфейса
         setupUI()
     }
 
     /**
-     * настройка UI элементов окна
+     * setup base UI, events
      */
     private fun setupUI() {
-        // настройка nav controller
         setupNavigationController()
     }
 
-    /**
-     * настройка navigation controller
-     */
     private fun setupNavigationController() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        // настройка bottom menu
-        val bottomNavigationView = binding.bottomNavigationView
-        bottomNavigationView.setupWithNavController(navController)
+        // setup bottom menu
+        val bottomNavigationView = binding?.bottomNavigationView
+        bottomNavigationView?.setupWithNavController(navController)
 
+        hideBottomMenuForSomeFragments(bottomNavigationView)
+    }
 
-        // скроеем bottom menu в случае переходов внутри фрагмента Home
+    private fun hideBottomMenuForSomeFragments(bottomNavigationView: BottomNavigationView?) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                // если переход в детали, то скрывать навигацию
+                // if we navigate to details, then we don't need navigation
                 R.id.detailsFragment,
                 R.id.searchFragment,
                 R.id.favouriteDetailsFragment,
                 R.id.keywordsManagerFragment,
-                R.id.zoomFragment
-                -> {
-                    // скрыть bottom меню
-                    bottomNavigationView.visibility = View.GONE
-                }
-                else -> {
-                    bottomNavigationView.visibility = View.VISIBLE
-                }
+                R.id.zoomFragment -> bottomNavigationView?.visibility = View.GONE
+                else -> bottomNavigationView?.visibility = View.VISIBLE
             }
         }
     }

@@ -124,7 +124,7 @@ class FavouriteDetailsFragment : Fragment() {
      */
     private fun setupViewModel() {
         // запрашиваем данные из модели
-        viewModel.getData(nasaId)
+        viewModel.loadDataFromCacheAndAPI(nasaId)
 
         // слушаем модель на данные
         viewModel.detailedData.observe(viewLifecycleOwner) { celestial ->

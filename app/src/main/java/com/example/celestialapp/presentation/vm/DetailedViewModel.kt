@@ -44,10 +44,7 @@ open class DetailedViewModel @Inject constructor (
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    /**
-     * получить данные из БД\api
-     */
-    fun getData(nasaIdNullable: String?) {
+    fun loadDataFromCacheAndAPI(nasaIdNullable: String?) {
         nasaIdNullable?.let { nasaId ->
             viewModelScope.launch(Dispatchers.IO) {
                 // попробуем получить данные из кэша

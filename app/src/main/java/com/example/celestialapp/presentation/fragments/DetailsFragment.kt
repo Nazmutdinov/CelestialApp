@@ -136,7 +136,7 @@ class DetailsFragment : Fragment() {
      */
     private fun setupViewModel() {
         // запрашиваем данные из модели
-        viewModel.getData(nasaId)
+        viewModel.loadDataFromCacheAndAPI(nasaId)
 
         // слушаем модель на получение данных небесных тел из апи
         viewModel.detailedData.observe(viewLifecycleOwner) { celestial ->

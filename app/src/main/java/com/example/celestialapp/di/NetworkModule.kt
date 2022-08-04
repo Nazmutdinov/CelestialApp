@@ -17,19 +17,15 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    //fun provideRemoteApi(baseUrl: String): RemoteApi = RemoteApi(baseUrl)
-
     fun provideRemoteApiService(): RemoteApiService {
         val moshi = Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
             .build()
 
         return Retrofit.Builder()
-                .addConverterFactory(MoshiConverterFactory.create(moshi))
-                .baseUrl(Constants.BASE_URL)
-                .build()
-                .create(RemoteApiService::class.java)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .baseUrl(Constants.BASE_URL)
+            .build()
+            .create(RemoteApiService::class.java)
     }
-
-
 }

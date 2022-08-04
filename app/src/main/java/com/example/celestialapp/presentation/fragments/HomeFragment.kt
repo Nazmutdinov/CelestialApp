@@ -36,9 +36,6 @@ class HomeFragment : Fragment() {
     private val adapter: CelestialAdapter by lazy { CelestialAdapter(::celestialItemTapped) }
 
     private val viewModel: MainViewModel by viewModels()
-//    private val viewModel: MainViewModel by lazy {
-//        ViewModelBuilder(requireContext()).buildMainViewModel(this)
-//    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,9 +52,6 @@ class HomeFragment : Fragment() {
 
         // настройка viewModel
         setupViewModel()
-
-        // восстановление выбранного пункта drawer меню из модели
-//         setupNavigationViewItemSelected()
     }
 
     /**
@@ -113,20 +107,6 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * настройка выбранного пункта drawer меню
-     */
-    /*
-    private fun setupNavigationViewItemSelected() {
-        // установим выбранный пункт меню из модели
-        navigationView.setCheckedItem(viewModel.selectedItemMenu)
-
-        // вызовим обновление данных
-        navigationViewItemTapped(viewModel.selectedItemMenu)
-    }
-
-     */
-
-    /**
      * обработка бокового меню
      */
     private fun navigationViewItemTapped(menuItemId: Int) {
@@ -160,16 +140,6 @@ class HomeFragment : Fragment() {
 
         // сохраним выбранный пункт navigation view в модель
         viewModel.saveKeywords(keywords)
-
-        // запросим новый поток небесных тел, т.к. keywords изменился
-      //  viewModel.getCelestialData()
-
-        // переподписываемся на поток данных о небесных телах, т.к. была смена поиска тела
-//        lifecycleScope.launch {
-//            viewModel.celestialsFlow.collectLatest {
-//                adapter.submitData(it)
-//            }
-//        }
     }
 
     /**
