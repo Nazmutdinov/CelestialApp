@@ -1,9 +1,7 @@
 package com.example.celestialapp.presentation.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +11,6 @@ import com.example.celestialapp.R
 import com.example.celestialapp.databinding.CelestialItemBinding
 import com.example.celestialapp.domain.models.FavouriteCelestialDataItem
 
-// адаптер для избранных небесных тел
 class FavouriteCelestialAdapter(
     private val callbackItemClick: (FavouriteCelestialDataItem) -> Unit
 ) : ListAdapter<FavouriteCelestialDataItem, FavouriteCelestialAdapter.Holder>(DiffCallback) {
@@ -29,15 +26,19 @@ class FavouriteCelestialAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = getItem(position) ?: return
 
-        with(holder.binding) {
-            imageView.load(item.image) {
+       onBind(holder, item)
+    }
+
+    private fun onBind(holder: Holder, item: FavouriteCelestialDataItem) {
+        with(holder.binding.imageView) {
+            load(item.image) {
                 placeholder(R.drawable.planet)
                 transformations(RoundedCornersTransformation())
             }
-            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-            // слушаем тап по картинке небесного тела
-            imageView.setOnClickListener {
+            scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+
+            setOnClickListener {
                 callbackItemClick(item)
             }
         }
@@ -54,7 +55,5 @@ class FavouriteCelestialAdapter(
             oldItem: FavouriteCelestialDataItem,
             newItem: FavouriteCelestialDataItem
         ) = oldItem.celestialId == newItem.celestialId
-
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.celestialapp.domain.usecase
 
+import com.example.celestialapp.R
 import com.example.celestialapp.data.repository.Resource
 import com.example.celestialapp.domain.models.TagDataItem
 import com.example.celestialapp.domain.repository.LocalDataRepository
@@ -34,7 +35,8 @@ class GetTagsByNasaIdUseCase(
                             TagDataItem(
                                 tagId = it.tagId,
                                 name = it.name,
-                                selected = true
+                                selected = true,
+                                color = R.color.purple_200
                             )
                         }
 
@@ -43,7 +45,8 @@ class GetTagsByNasaIdUseCase(
                             TagDataItem(
                                 tagId = it.tagId,
                                 name = it.name,
-                                selected = false
+                                selected = false,
+                                color = R.color.white
                             )
                         }
 

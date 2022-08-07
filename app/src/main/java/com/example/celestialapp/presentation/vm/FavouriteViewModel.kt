@@ -59,8 +59,8 @@ class FavouriteViewModel @Inject constructor (
 
         _keywords.value?.map {
             it.copy()
-        }?.map {
-            if (it.tagId == keyword.tagId) keyword else it
+        }?.map { tagDataItem ->
+            if (tagDataItem.tagId == keyword.tagId) keyword else tagDataItem
         }?.let { newKeywordList ->
             viewModelScope.launch(Dispatchers.IO) {
                 _keywords.postValue(newKeywordList)
@@ -70,6 +70,8 @@ class FavouriteViewModel @Inject constructor (
             }
         }
     }
+
+
 
     /**
      * получить список небесных тел для заданного списка ключевых слов

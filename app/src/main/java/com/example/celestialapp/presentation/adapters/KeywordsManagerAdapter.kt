@@ -9,21 +9,24 @@ import com.example.celestialapp.databinding.ManagerKeywordItemBinding
 import com.example.celestialapp.domain.models.TagDataItem
 
 class KeywordsManagerAdapter :
-    ListAdapter<TagDataItem, KeywordsManagerAdapter.Holder>(ItemDiffCallback())
-     {
+    ListAdapter<TagDataItem, KeywordsManagerAdapter.Holder>(ItemDiffCallback()) {
 
     class Holder(val binding: ManagerKeywordItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val binding = ManagerKeywordItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            ManagerKeywordItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return Holder(binding)
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = getItem(position)
-        holder.binding.nameTextView.text = item.name
+        onBind(holder, item)
     }
 
+    private fun onBind(holder: Holder, item: TagDataItem) {
+        holder.binding.nameTextView.text = item.name
+    }
 
     class ItemDiffCallback : DiffUtil.ItemCallback<TagDataItem>() {
         override fun areItemsTheSame(

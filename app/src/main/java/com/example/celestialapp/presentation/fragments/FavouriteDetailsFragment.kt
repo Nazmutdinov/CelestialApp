@@ -36,7 +36,8 @@ class FavouriteDetailsFragment : Fragment() {
         KeywordAdapter(requireContext(), ::keywordTapped)
     }
 
-    @Inject lateinit var dialog: DialogFactory
+    @Inject
+    lateinit var dialog: DialogFactory
 
     private var nasaId: String? = null
 
@@ -91,7 +92,10 @@ class FavouriteDetailsFragment : Fragment() {
             celestialImageView.setOnClickListener {
                 viewModel.detailedData.value?.let { favouriteCelestialDataItem ->
                     val nasaId = favouriteCelestialDataItem.nasaId
-                    val direction = FavouriteDetailsFragmentDirections.actionFavouriteDetailsFragmentToZoomFragment(nasaId)
+                    val direction =
+                        FavouriteDetailsFragmentDirections.actionFavouriteDetailsFragmentToZoomFragment(
+                            nasaId
+                        )
 
                     findNavController().navigate(direction)
                 }
