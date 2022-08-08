@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -37,7 +36,8 @@ class DetailsFragment : Fragment() {
         KeywordAdapter(requireContext(), ::keywordTapped)
     }
 
-    @Inject lateinit var dialog: DialogFactory
+    @Inject
+    lateinit var dialog: DialogFactory
     private var nasaId: String? = null
     private val viewModel: DetailedViewModel by viewModels()
 
@@ -60,10 +60,7 @@ class DetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // настройка интерфейса
         setupUI()
-
-        // настройка viewModel
         setupViewModel()
     }
 
@@ -78,51 +75,112 @@ class DetailsFragment : Fragment() {
 
             recycleView.adapter = adapter
 
-            // слушаем тап по кнопке Найти похожее
             searchButton.setOnClickListener {
-                searchSameCelestials()
+                showFragmentWithSameCelestials()
             }
 
-            // слушаем тап по кнопке Добавить тэг
             addKeywordButton.setOnClickListener {
-                // покажем диалог ввода нового ключевого слова
                 dialog.showAddKeywordDialog(requireContext()) { keywordName ->
-                    // сохраним тег и картинку в БД
                     viewModel.addFavouriteCelestial(keywordName)
                 }
             }
 
-            // слушаем тап по картинке для перехода в zoom окно
             celestialImageView.setOnClickListener {
                 viewModel.detailedData.value?.let { favouriteCelestialDataItem ->
                     val nasaId = favouriteCelestialDataItem.nasaId
-                    val direction = DetailsFragmentDirections.actionDetailsFragmentToZoomFragment(nasaId)
+                    val direction =
+                        DetailsFragmentDirections.actionDetailsFragmentToZoomFragment(nasaId)
 
                     findNavController().navigate(direction)
                 }
             }
         }
 
-        // слушаем тап по кнопке назад
-        toolbarFragment?.setNavigationOnClickListener {
-            // закрыть окно
-            findNavController().popBackStack()
-        }
-
-        // тап по меню кнопке расшарить фото
-        toolbarFragment?.setOnMenuItemClickListener {
-            viewModel.detailedData.value?.let {
-                sharePhoto(it.imagePath)
+        toolbarFragment?.let { toolbFrg ->
+            toolbFrg.setNavigationOnClickListener {
+                findNavController().popBackStack()
             }
 
-            true
+            toolbFrg.setOnMenuItemClickListener {
+                viewModel.detailedData.value?.let { favouriteCelestialDataItem ->
+                    sharePhotoToViberMessengers(favouriteCelestialDataItem.imagePath)
+                }
+
+                true
+            }
         }
     }
 
-    /**
-     * отправить ссылку на фото другу
-     */
-    private fun sharePhoto(imagePath: String) {
+    private fun setupViewModel() {
+        with(viewModel) {
+            nasaId?.let { loadDataFromCacheOrAPI(it) }
+
+            detailedData.observe(viewLifecycleOwner) { celestial ->
+                updateUIData(celestial)
+
+                loadTags()
+            }
+
+            // event when we add new tag
+            eventCelestial.observe(viewLifecycleOwner) { celestialEvent ->
+                when (celestialEvent) {
+                    is CelestialEvent.Add, is CelestialEvent.Save, is CelestialEvent.Delete -> {
+                        loadTags()
+
+                        celestialEvent.stringId?.let {
+                            showSnackBar(it)
+                        }
+                    }
+                    else -> Unit
+                }
+            }
+
+            tags.observe(viewLifecycleOwner) {
+                adapter.submitList(it)
+            }
+
+            errorMessage.observe(viewLifecycleOwner) {
+                showSnackBar(it.toString())
+            }
+        }
+    }
+
+    // MAIN UI LOGICS
+
+    private fun updateUIData(data: FavouriteCelestialDataItem) {
+        with(binding) {
+            titleTextView.text = data.title
+            timeAgoTextView.text = data.yearsAgo
+            descriptionTextView.text = data.description
+
+            celestialImageView.load(data.image) {
+                target { celestialImageView.setImageDrawable(it) }
+            }
+        }
+    }
+
+    private fun showFragmentWithSameCelestials() {
+        with(viewModel) {
+            loadKeywords()
+
+            keywords.observe(viewLifecycleOwner) { keywords ->
+                keywords?.let {
+                    val action =
+                        DetailsFragmentDirections.actionDetailsFragmentToSearchFragment(keywords.toTypedArray())
+                    findNavController().navigate(action)
+                }
+            }
+        }
+    }
+
+    private fun keywordTapped(item: TagDataItem) {
+        viewModel.tappedTag(item)
+        adapter.notifyDataSetChanged()
+    }
+
+    // ADDITIONAL LOGICS
+
+    private fun sharePhotoToViberMessengers(imagePath: String) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_TEXT, imagePath)
@@ -133,113 +191,11 @@ class DetailsFragment : Fragment() {
         startActivity(shareIntent)
     }
 
-
-
-    /**
-     * настройка view model
-     */
-    private fun setupViewModel() {
-        // запрашиваем данные из модели
-        viewModel.loadDataFromCacheAndAPI(nasaId)
-
-        // слушаем модель на получение данных небесных тел из апи
-        viewModel.detailedData.observe(viewLifecycleOwner) { celestial ->
-            updateUIData(celestial)
-
-            // запрашиваем список ключевых слов с пометкой, что они привязаны к телу
-            viewModel.getTags()
-        }
-
-        // слушаем модель на событие добавления нового тега
-        viewModel.eventCelestial.observe(viewLifecycleOwner) { celestialEvent ->
-            when (celestialEvent) {
-                is CelestialEvent.Add, is CelestialEvent.Save, is CelestialEvent.Delete -> {
-                    viewModel.getTags()
-
-                    celestialEvent.stringId?.let {
-                        Snackbar.make(
-                            requireView(),
-                            getString(it),
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
-
-                }
-                else -> {}
-            }
-        }
-
-        // слушаем модель на получение списка ключевых слов
-        viewModel.tags.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
-        }
-
-        // слушаем модель на ошибки
-        viewModel.errorMessage.observe(viewLifecycleOwner) {
-            Snackbar.make(requireView(), it.toString(), Snackbar.LENGTH_SHORT).show()
-        }
+    private fun showSnackBar(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
     }
 
-    /**
-     * обновить данные в окне
-     */
-    private fun updateUIData(data: FavouriteCelestialDataItem) {
-        with(binding) {
-            // настройка заголовка
-            titleTextView.text = data.title
-
-            // настройка даты
-            timeAgoTextView.text = data.yearsAgo
-
-            // настройка описания
-            descriptionTextView.text = data.description
-
-            // если в кэше еще нет картинки подргрузим и сохраним
-
-            if (data.image == null) {
-                // берем картинку из сети
-                celestialImageView.load(data.imagePath) {
-                    target { drawable ->
-                        celestialImageView.setImageDrawable(drawable)
-                        viewModel.updateCache(data.nasaId, drawable.toBitmap())
-                    }
-                }
-            } else {
-                // берем картинку из кэша
-                celestialImageView.load(data.image) {
-                    target { drawable ->
-                        celestialImageView.setImageDrawable(drawable)
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * переход в окно поиска похожих небесных тел
-     */
-    private fun searchSameCelestials() {
-        // запускаем процесс получения привязок api ключевых слов
-        viewModel.getKeywords()
-
-        // слушаем модель на получение привязок api ключевых слов
-        viewModel.keywords.observe(viewLifecycleOwner) { keywords ->
-            keywords?.let {
-                val keywordsArray = keywords.toTypedArray()
-                // переход в окно поиска
-                val direction =
-                    DetailsFragmentDirections.actionDetailsFragmentToSearchFragment(keywordsArray)
-                findNavController().navigate(direction)
-            }
-
-        }
-    }
-
-    /**
-     * тап по тегу
-     */
-    private fun keywordTapped(item: TagDataItem) {
-        viewModel.tappedKeyword(item)
-        adapter.notifyDataSetChanged()
+    private fun showSnackBar(resId: Int) {
+        Snackbar.make(requireView(), getString(resId), Snackbar.LENGTH_SHORT).show()
     }
 }

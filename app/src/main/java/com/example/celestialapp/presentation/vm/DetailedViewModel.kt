@@ -1,7 +1,7 @@
 package com.example.celestialapp.presentation.vm
 
 import android.graphics.Bitmap
-import android.util.Log
+
 import androidx.lifecycle.*
 import com.example.celestialapp.domain.models.FavouriteCelestialDataItem
 import com.example.celestialapp.domain.models.TagDataItem
@@ -12,9 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// модель для кэширования и просмотра детальной инфы по небесным телам из api
+/**
+ * Detailed view model for caching and viewing photos and desc of celestials NASA API
+ */
 @HiltViewModel
-open class DetailedViewModel @Inject constructor (
+open class DetailedViewModel @Inject constructor(
     private val getFavouriteCelestialByIdUseCase: GetFavouriteCelestialByIdUseCase,
     private val getDetailedDataUseCase: GetDetailedDataUseCase,
     private val getTagsByNasaIdUseCase: GetTagsByNasaIdUseCase,
@@ -22,61 +24,68 @@ open class DetailedViewModel @Inject constructor (
     private val updateTagCelestialUseCase: UpdateTagCelestialUseCase,
     private val addTagCelestialUseCase: AddTagCelestialUseCase,
     private val deleteCrossRefDataUseCase: DeleteCrossRefDataUseCase,
+    private val getLargeImageUseCase: GetLargeImageUseCase,
     private val updateCacheUseCase: UpdateCacheUseCase
 ) : ViewModel() {
-    // детальная инфа о небесном теле
+    // main data
     private val _detailedData = MutableLiveData<FavouriteCelestialDataItem>()
     val detailedData: LiveData<FavouriteCelestialDataItem> = _detailedData
 
-    // события добавления, обновления и удаления тега
+    // events adding, updating or deleteing celestial's tags
     private val _eventCelestial = MutableLiveData<CelestialEvent>()
     val eventCelestial: LiveData<CelestialEvent> = _eventCelestial
 
-    // список тегов
+    // our own tags
     private val _tags = MutableLiveData<List<TagDataItem>>()
     val tags: LiveData<List<TagDataItem>> = _tags
 
-    // список api ключевых слов
+    // NASA keywords
     private val _keywords = MutableLiveData<List<String>?>()
     val keywords: LiveData<List<String>?> = _keywords
 
-    // для сообщениях об ошибках
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    fun loadDataFromCacheAndAPI(nasaIdNullable: String?) {
-        nasaIdNullable?.let { nasaId ->
-            viewModelScope.launch(Dispatchers.IO) {
-                // попробуем получить данные из кэша
-                val resourceCache = getFavouriteCelestialByIdUseCase(nasaId)
+    fun loadDataFromCacheOrAPI(nasaId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val resourceCache = getFavouriteCelestialByIdUseCase(nasaId)
 
-                if (resourceCache is ResourceUseCase.Success) {
-                    resourceCache.data?.let { favouriteCelestialDataItem ->
-                        // передадим подписанту
-                        _detailedData.postValue(favouriteCelestialDataItem)
-                    }
-                } else {
-                    // данных в кэше не найдено, поэтому берем данные из сети
-                    when (val resource = getDetailedDataUseCase(nasaId)) {
-                        is ResourceUseCase.Success -> {
-                            resource.data?.let { dataItem ->
-                                // передадим подписанту
-                                _detailedData.postValue(dataItem)
-                            }
-                        }
-                        else -> _errorMessage.postValue(resource.message)
-                    }
-                }
+            if (resourceCache is ResourceUseCase.Success) {
+                resourceCache.data?.let { _detailedData.postValue(it) }
+            } else {
+                loadDataFromNetwork(nasaId)
             }
         }
     }
 
-    /**
-     * получить список привязок тегов для списка nasaId небесных тел
-     */
-    fun getTags() {
-        _detailedData.value?.let {
-            val listNasaId = listOf(it.nasaId)
+    private suspend fun loadDataFromNetwork(nasaId: String) {
+        when (val resource = getDetailedDataUseCase(nasaId)) {
+            is ResourceUseCase.Success -> {
+                resource.data?.let { dataItem ->
+                    _detailedData.postValue(dataItem)
+                    loadImageDataFromNetwork(dataItem.nasaId, dataItem.imagePath)
+                }
+            }
+            else -> _errorMessage.postValue(resource.message)
+        }
+    }
+
+    private suspend fun loadImageDataFromNetwork(nasaId: String, imagePath: String) {
+        getLargeImageUseCase(imagePath) { resourceUseCase ->
+            when (resourceUseCase) {
+                is ResourceUseCase.Success -> {
+                    resourceUseCase.data?.let { bitmap ->
+                        updateCache(nasaId, bitmap)
+                    }
+                }
+                else -> _errorMessage.postValue(resourceUseCase.message)
+            }
+        }
+    }
+
+    fun loadTags() {
+        _detailedData.value?.let { favouriteCelestialDataItem ->
+            val listNasaId = listOf(favouriteCelestialDataItem.nasaId)
 
             viewModelScope.launch(Dispatchers.IO) {
                 when (val resource = getTagsByNasaIdUseCase(listNasaId)) {
@@ -92,14 +101,14 @@ open class DetailedViewModel @Inject constructor (
     }
 
     /**
-     * добавить тег, небесное тело и связь в БД
+     * add new tag, celestial and relation ship into db
      */
-    fun addFavouriteCelestial(keywordName: String) {
+    fun addFavouriteCelestial(tagName: String) {
         _detailedData.value?.let { favouriteCelestial ->
             viewModelScope.launch(Dispatchers.IO) {
                 // сохраним небесное тело в БД
                 when (val resource =
-                    addTagCelestialUseCase(keywordName, favouriteCelestial)) {
+                    addTagCelestialUseCase(tagName, favouriteCelestial)) {
                     is ResourceUseCase.Success -> {
                         resource.data?.let {
                             _eventCelestial.postValue(CelestialEvent.Add())
@@ -113,14 +122,13 @@ open class DetailedViewModel @Inject constructor (
     }
 
     /**
-     * сохраним существующий тег, небесное тело и связь в БД
+     * update celestial with new tag
      */
-    private fun saveFavouriteCelestial(keywordId: Int) {
+    private fun saveFavouriteCelestial(tagId: Int) {
         _detailedData.value?.let { favouriteCelestial ->
             viewModelScope.launch(Dispatchers.IO) {
-                // сохраним небесное тело в БД
                 when (val resource = updateTagCelestialUseCase(
-                    keywordId,
+                    tagId,
                     favouriteCelestial
                 )) {
                     is ResourceUseCase.Success -> {
@@ -134,13 +142,9 @@ open class DetailedViewModel @Inject constructor (
         }
     }
 
-    /**
-     * удалим связь тега и небесного тела
-     */
     private fun deleteFavouriteCelestial(keywordId: Int) {
         _detailedData.value?.let { favouriteCelestial ->
             viewModelScope.launch(Dispatchers.IO) {
-                // удалим тег для небесного тела
                 when (val resource =
                     deleteCrossRefDataUseCase(keywordId, favouriteCelestial.celestialId)) {
                     is ResourceUseCase.Success -> {
@@ -155,35 +159,28 @@ open class DetailedViewModel @Inject constructor (
     }
 
     /**
-     * тапнули по тэгу, нужно сменить картинку и привязать/отвязать тег к небесному телу
+     * tap on tag, e need change tag icon backgorund, bind/unbind tag to celestial
      */
-    fun tappedKeyword(keyword: TagDataItem) {
-        // переключим тег
-        keyword.toggle()
+    fun tappedTag(tag: TagDataItem) {
+        tag.toggle()
 
-        // если выбрали ключевое слово, то сохраним привязку иначе удалим привязку
-        if (keyword.selected) saveFavouriteCelestial(keyword.tagId) else deleteFavouriteCelestial(
-            keyword.tagId
-        )
+        if (tag.selected) saveFavouriteCelestial(tag.tagId)
+        else deleteFavouriteCelestial(tag.tagId)
     }
 
-    /**
-     * сохранить bitmap medium картинку в кэш БД
-     */
-    fun updateCache(nasaId: String, bitmap: Bitmap) {
+    private fun updateCache(nasaId: String, bitmap: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("myTag","nasaId $nasaId $bitmap")
-            val resource = updateCacheUseCase(nasaId, bitmap)
-
-            // если ошибка, сообщим подписанту
-            if (resource is ResourceUseCase.Error) _errorMessage.postValue(resource.message)
+            when (val resource = updateCacheUseCase(nasaId, bitmap)) {
+                is ResourceUseCase.Success -> resource.data?.let { _detailedData.postValue(it) }
+                else -> _errorMessage.postValue(resource.message)
+            }
         }
     }
 
     /**
-     * получить список привязок ключевых слов для небесного тела
+     * load NASA keywords for celestial
      */
-    fun getKeywords() {
+    fun loadKeywords() {
         _detailedData.value?.let { favouriteCelestialDataItem ->
             val nasaId = favouriteCelestialDataItem.nasaId
             viewModelScope.launch(Dispatchers.IO) {
@@ -197,6 +194,5 @@ open class DetailedViewModel @Inject constructor (
                 }
             }
         }
-
     }
 }

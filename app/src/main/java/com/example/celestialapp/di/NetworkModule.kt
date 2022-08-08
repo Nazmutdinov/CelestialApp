@@ -1,5 +1,7 @@
 package com.example.celestialapp.di
 
+import android.content.Context
+import coil.ImageLoader
 import com.example.celestialapp.data.Constants
 import com.example.celestialapp.data.repository.RemoteApiService
 import com.squareup.moshi.Moshi
@@ -7,6 +9,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -28,4 +31,8 @@ object NetworkModule {
             .build()
             .create(RemoteApiService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideImageLoader(@ApplicationContext context: Context) :ImageLoader = ImageLoader.Builder(context).build()
 }

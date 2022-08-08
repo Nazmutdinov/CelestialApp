@@ -23,7 +23,7 @@ class UpdateCacheUseCase(
 
         val resource = localDataRepository.updateImageData(nasaId, image)
 
-        // если картинка успшено обновленае, то вернем результат в сиде небесного тела
+        // если картинка успшено обновлена, то вернем результат в сиде небесного тела
         if (resource is Resource.Success) {
             resource.data?.let { celestialInfoEntity ->
                 val result = localDataMapper.mapCelestialInfoEntityToModel(celestialInfoEntity)

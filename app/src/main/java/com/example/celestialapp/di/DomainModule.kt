@@ -86,12 +86,19 @@ object DomainModule {
 
     @Provides
     @ViewModelScoped
+    fun provideGetLargeImageUseCase(
+        remoteDataRepository: RemoteDataRepository
+    ) = GetLargeImageUseCase(remoteDataRepository)
+
+    @Provides
+    @ViewModelScoped
     fun provideUpdateCacheUseCase(
         localDataRepository: LocalDataRepository,
         localDataMapper: LocalDataMapper,
         utils: Utils
     ): UpdateCacheUseCase =
         UpdateCacheUseCase(localDataRepository, localDataMapper, utils)
+
 
     @Provides
     @ViewModelScoped

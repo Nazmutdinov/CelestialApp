@@ -1,6 +1,7 @@
 package com.example.celestialapp.di
 
 import android.content.Context
+import coil.ImageLoader
 import com.example.celestialapp.data.local.CelestialDatabase
 import com.example.celestialapp.data.repository.*
 import com.example.celestialapp.domain.repository.LocalDataRepository
@@ -23,7 +24,7 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideCelestialDatabase(@ApplicationContext context: Context): CelestialDatabase  =
+    fun provideCelestialDatabase(@ApplicationContext context: Context): CelestialDatabase =
         CelestialDatabase.getDatabase(context)
 
 
@@ -41,13 +42,16 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideRemoteDataRepository(remoteApiService: RemoteApiService): RemoteDataRepository =
-        RemoteDataRepositoryImpl(remoteApiService)
+    fun provideRemoteDataRepository(
+        @ApplicationContext context: Context,
+        remoteApiService: RemoteApiService,
+        imageLoader: ImageLoader
+    ): RemoteDataRepository =
+        RemoteDataRepositoryImpl(context, remoteApiService, imageLoader)
 
     @Provides
     @Singleton
-    fun provideLocalDataMapper(utils: Utils):LocalDataMapper = LocalDataMapper(utils)
-
+    fun provideLocalDataMapper(utils: Utils): LocalDataMapper = LocalDataMapper(utils)
 
 
     @Provides
@@ -56,7 +60,7 @@ object DataModule {
         dispatcher: CoroutineDispatcher,
         remoteApiService: RemoteApiService,
         remoteDataMapper: RemoteDataMapper
-    ):MyPager = MyPager(dispatcher, remoteApiService, remoteDataMapper)
+    ): MyPager = MyPager(dispatcher, remoteApiService, remoteDataMapper)
 
     @Provides
     @Singleton
@@ -65,7 +69,8 @@ object DataModule {
         dispatcher: CoroutineDispatcher,
         remoteApiService: RemoteApiService,
         remoteDataMapper: RemoteDataMapper
-    ):PagingSourceFactory = PagingSourceFactory(keywords, dispatcher, remoteApiService, remoteDataMapper)
+    ): PagingSourceFactory =
+        PagingSourceFactory(keywords, dispatcher, remoteApiService, remoteDataMapper)
 
     @Provides
     @Singleton
@@ -75,8 +80,7 @@ object DataModule {
     // всмомогательные улилиты
     @Provides
     @Singleton
-    fun provideUtils(@ApplicationContext context: Context):Utils = Utils(context)
-
+    fun provideUtils(@ApplicationContext context: Context): Utils = Utils(context)
 
 
 }

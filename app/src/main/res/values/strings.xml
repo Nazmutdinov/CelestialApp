@@ -41,6 +41,7 @@
     <string name="pagingSourceFactoryError">thats all, tehe is no more items</string>
     <string name="insertKeywordDataError">error inserting keyword and getting keywordId</string>
     <string name="insertCelestialDataError">error inserting celestial</string>
+    <string name="getLargeImageError">error loading image</string>
 
 
     <!-- сообщения в окне-->

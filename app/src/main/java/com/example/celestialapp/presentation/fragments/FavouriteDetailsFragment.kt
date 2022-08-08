@@ -137,21 +137,22 @@ class FavouriteDetailsFragment : Fragment() {
      */
     private fun setupViewModel() {
         // запрашиваем данные из модели
-        viewModel.loadDataFromCacheAndAPI(nasaId)
+        nasaId?.let { viewModel.loadDataFromCacheOrAPI(it) }
+
 
         // слушаем модель на данные
         viewModel.detailedData.observe(viewLifecycleOwner) { celestial ->
             updateUIData(celestial)
 
             // запрашиваем список ключевых слов с пометкой, что они привязаны к телу
-            viewModel.getTags()
+            viewModel.loadTags()
         }
 
         // слушаем модель на событие добавления тега\ изменения привязки
         viewModel.eventCelestial.observe(viewLifecycleOwner) { celestialEvent ->
             when (celestialEvent) {
                 is CelestialEvent.Add, is CelestialEvent.Save, is CelestialEvent.Delete -> {
-                    viewModel.getTags()
+                    viewModel.loadTags()
 
                     celestialEvent.stringId?.let {
                         Snackbar.make(
@@ -205,6 +206,6 @@ class FavouriteDetailsFragment : Fragment() {
      * тап по тегу
      */
     private fun keywordTapped(item: TagDataItem) {
-        viewModel.tappedKeyword(item)
+        viewModel.tappedTag(item)
     }
 }
