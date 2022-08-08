@@ -6,12 +6,11 @@ import androidx.appcompat.app.AlertDialog
 import com.example.celestialapp.R
 import com.google.android.material.textfield.TextInputEditText
 
-
 class DialogFactory {
     /**
-     * диалог для ввода названия нового ключевого слова
+     * enter new tag name
      */
-    fun showAddKeywordDialog(context: Context, callbackAddClick: (String) -> Unit) {
+    fun showAddTagDialog(context: Context, callbackAddClick: (String) -> Unit) {
         val builder = AlertDialog.Builder(context)
         val inflater = LayoutInflater.from(context)
         val dialogView = inflater.inflate(R.layout.creation_keyword_dialog, null)
@@ -33,16 +32,13 @@ class DialogFactory {
             .show()
     }
 
-    /**
-     * диалог для удаления ключевого слова
-     */
-    fun showDeleteKeywordDialog(
+    fun showDeleteTagDialog(
         context: Context,
-        keywordName: String,
+        tagName: String,
         callbackClick: (Boolean) -> Unit
     ) {
         val builder = AlertDialog.Builder(context)
-        builder.setTitle(context.getString(R.string.showDeleteConfirmationDialogTitle, keywordName))
+        builder.setTitle(context.getString(R.string.showDeleteConfirmationDialogTitle, tagName))
             .setMessage(context.getString(R.string.showDeleteConfirmationDialogMessage))
             .setNegativeButton(R.string.dialog_button_no) { dialogInterface, _ ->
                 callbackClick(false)

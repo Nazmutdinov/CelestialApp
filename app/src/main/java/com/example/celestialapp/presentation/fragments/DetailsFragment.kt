@@ -80,7 +80,7 @@ class DetailsFragment : Fragment() {
             }
 
             addKeywordButton.setOnClickListener {
-                dialog.showAddKeywordDialog(requireContext()) { keywordName ->
+                dialog.showAddTagDialog(requireContext()) { keywordName ->
                     viewModel.addFavouriteCelestial(keywordName)
                 }
             }

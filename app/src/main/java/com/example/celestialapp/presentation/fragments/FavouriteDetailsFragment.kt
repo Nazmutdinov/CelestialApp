@@ -38,9 +38,7 @@ class FavouriteDetailsFragment : Fragment() {
 
     @Inject
     lateinit var dialog: DialogFactory
-
     private var nasaId: String? = null
-
     private val viewModel: DetailedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,10 +60,7 @@ class FavouriteDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // настройка интерфейса
         setupUI()
-
-        // настройка viewModel
         setupViewModel()
     }
 
@@ -81,14 +76,11 @@ class FavouriteDetailsFragment : Fragment() {
             recycleView.adapter = adapter
 
             addKeywordButton.setOnClickListener {
-                // покажем диалог ввода нового ключевого слова
-                dialog.showAddKeywordDialog(requireContext()) { keywordName ->
-                    // сохраним тег и картинку в БД
+                dialog.showAddTagDialog(requireContext()) { keywordName ->
                     viewModel.addFavouriteCelestial(keywordName)
                 }
             }
 
-            // слушаем тап по картинке для перехода в zoom окно
             celestialImageView.setOnClickListener {
                 viewModel.detailedData.value?.let { favouriteCelestialDataItem ->
                     val nasaId = favouriteCelestialDataItem.nasaId
@@ -102,13 +94,8 @@ class FavouriteDetailsFragment : Fragment() {
             }
         }
 
-        // слушаем тап по кнопке назад
-        toolbarFragment?.setNavigationOnClickListener {
-            // закрыть окно
-            findNavController().popBackStack()
-        }
+        toolbarFragment?.setNavigationOnClickListener { findNavController().popBackStack() }
 
-        // тап по меню кнопке расшарить фото
         toolbarFragment?.setOnMenuItemClickListener {
             viewModel.detailedData.value?.let {
                 sharePhoto(it.imagePath)
@@ -118,9 +105,56 @@ class FavouriteDetailsFragment : Fragment() {
         }
     }
 
-    /**
-     * отправить ссылку на фото другу
-     */
+    private fun setupViewModel() {
+        nasaId?.let { viewModel.loadDataFromCacheOrAPI(it) }
+
+        viewModel.detailedData.observe(viewLifecycleOwner) { celestial ->
+            updateUIData(celestial)
+
+            viewModel.loadTags()
+        }
+
+        viewModel.eventCelestial.observe(viewLifecycleOwner) { celestialEvent ->
+            when (celestialEvent) {
+                is CelestialEvent.Add, is CelestialEvent.Save, is CelestialEvent.Delete -> {
+                    viewModel.loadTags()
+
+                    celestialEvent.stringId?.let { showSnackBar(it) }
+                }
+                else -> Unit
+            }
+        }
+
+        viewModel.tags.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+            adapter.notifyDataSetChanged()
+        }
+
+        viewModel.errorMessage.observe(viewLifecycleOwner) { showSnackBar(it.toString()) }
+    }
+
+    // MAIN UI LOGICS
+
+    private fun updateUIData(data: FavouriteCelestialDataItem) {
+        with(binding) {
+            titleTextView.text = data.title
+            timeAgoTextView.text = data.yearsAgo
+            descriptionTextView.text = data.description
+
+            celestialImageView.load(data.image) {
+                target { drawable ->
+                    celestialImageView.setImageDrawable(drawable)
+                }
+            }
+        }
+    }
+
+    private fun keywordTapped(item: TagDataItem) {
+        viewModel.tappedTag(item)
+    }
+
+    // ADDITIONAL LOGICS
+
     private fun sharePhoto(imagePath: String) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
@@ -132,80 +166,11 @@ class FavouriteDetailsFragment : Fragment() {
         startActivity(shareIntent)
     }
 
-    /**
-     * настройка view model
-     */
-    private fun setupViewModel() {
-        // запрашиваем данные из модели
-        nasaId?.let { viewModel.loadDataFromCacheOrAPI(it) }
-
-
-        // слушаем модель на данные
-        viewModel.detailedData.observe(viewLifecycleOwner) { celestial ->
-            updateUIData(celestial)
-
-            // запрашиваем список ключевых слов с пометкой, что они привязаны к телу
-            viewModel.loadTags()
-        }
-
-        // слушаем модель на событие добавления тега\ изменения привязки
-        viewModel.eventCelestial.observe(viewLifecycleOwner) { celestialEvent ->
-            when (celestialEvent) {
-                is CelestialEvent.Add, is CelestialEvent.Save, is CelestialEvent.Delete -> {
-                    viewModel.loadTags()
-
-                    celestialEvent.stringId?.let {
-                        Snackbar.make(
-                            requireView(),
-                            getString(it),
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
-
-                }
-                else -> {}
-            }
-        }
-
-        // слушаем модель на получение списка ключевых слов
-        viewModel.tags.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
-            adapter.notifyDataSetChanged()
-        }
-
-        // слушаем модель на ошибки
-        viewModel.errorMessage.observe(viewLifecycleOwner) {
-            Snackbar.make(requireView(), it.toString(), Snackbar.LENGTH_SHORT).show()
-        }
+    private fun showSnackBar(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
     }
 
-    /**
-     * обновить данные в окне
-     */
-    private fun updateUIData(data: FavouriteCelestialDataItem) {
-        with(binding) {
-            // настройка заголовка
-            titleTextView.text = data.title
-
-            // настройка изображения
-            celestialImageView.load(data.image) {
-                target { drawable ->
-                    celestialImageView.setImageDrawable(drawable)
-                }
-            }
-
-            // настройка даты
-            timeAgoTextView.text = data.yearsAgo
-
-            // настройка описания
-            descriptionTextView.text = data.description
-        }
-    }
-
-    /**
-     * тап по тегу
-     */
-    private fun keywordTapped(item: TagDataItem) {
-        viewModel.tappedTag(item)
+    private fun showSnackBar(resId: Int) {
+        Snackbar.make(requireView(), getString(resId), Snackbar.LENGTH_SHORT).show()
     }
 }

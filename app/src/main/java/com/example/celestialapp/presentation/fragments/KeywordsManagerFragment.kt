@@ -93,7 +93,7 @@ class KeywordsManagerFragment : Fragment() {
             // слушаем тап по меню
             setOnMenuItemClickListener {
                 // показать окно добавления тега
-                dialog.showAddKeywordDialog(requireContext()) { name ->
+                dialog.showAddTagDialog(requireContext()) { name ->
                     // добавим тег в БД
                     viewModel.addKeyword(name)
                 }
@@ -107,7 +107,7 @@ class KeywordsManagerFragment : Fragment() {
      */
     private fun deleteKeyword(position: Int) {
         viewModel.getKeywordByPosition(position)?.let {  keyword ->
-            dialog.showDeleteKeywordDialog(requireContext(), keyword.name) { confirmDelete ->
+            dialog.showDeleteTagDialog(requireContext(), keyword.name) { confirmDelete ->
                 if (confirmDelete) {
                     // ответ диалога = подтверждение, вызываем удаление ключевого слова в БД
                     viewModel.deleteKeyword(keyword.tagId)
