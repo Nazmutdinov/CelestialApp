@@ -97,11 +97,11 @@ class SearchFragment : Fragment() {
      */
     private fun setupViewModel() {
         // передадим в модель список ключевых слов для поиска
-        viewModel.saveKeywords(keywords)
+        viewModel.saveApiKeywords(keywords)
 
         // слушаем модель на получение списка небесных тел
         lifecycleScope.launch {
-            viewModel.celestialsFlow?.collectLatest {
+            viewModel.celestialsFlowFromAPI?.collectLatest {
                 adapter.submitData(it)
             }
         }

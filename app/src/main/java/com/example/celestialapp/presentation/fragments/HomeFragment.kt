@@ -31,12 +31,9 @@ class HomeFragment : Fragment() {
     private val binding: FragmentHomeBinding get() = _binding!!
 
     private var toolbar: Toolbar? = null
-
     private var drawerLayout: DrawerLayout? = null
-
     private var navigationView: NavigationView? = null
-
-    private val adapter: CelestialAdapter by lazy { CelestialAdapter(::celestialItemTapped) }
+    private val adapter: CelestialAdapter by lazy { CelestialAdapter(::showDetailedCelestialData) }
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -50,10 +47,8 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // настройка интерфейса
-        setupUI()
 
-        // настройка viewModel
+        setupUI()
         setupViewModel()
     }
 
@@ -62,61 +57,45 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
-    /**
-     * настройка UI элементов окна
-     */
     private fun setupUI() {
         with(binding) {
-            // настройка адаптера
             homeFragmentRecycleView.adapter = adapter
-
-            // настройка toolbar
             toolbar = homeFragmentToolbar
-
-            // настройка DrawerLayout
             drawerLayout = homeFragmentDrawLayout
-
-            // настройка бокового меню NavigationView
             navigationView = homeFragmentNavigationView
         }
 
-        // настройка меню в toolbar
         setupToolbar()
-
-        // настройка бокового меню
         setupNavigationView()
     }
 
-    /**
-     * настройка toolbar
-     */
     private fun setupToolbar() {
-        // слушаем тап по меню
         toolbar?.setOnMenuItemClickListener {
-            // открыть navigation view справа-налево
             drawerLayout?.openDrawer(GravityCompat.END, false)
             true
         }
     }
 
-    /**
-     * настройка бокового меню Navigation view
-     */
     private fun setupNavigationView() {
         navigationView?.setNavigationItemSelectedListener {
-            // закрыть navigation view справа-налево
+            // close navigation view from right-to-left
             drawerLayout?.closeDrawer(GravityCompat.END)
-
-            // обработаем выбранный пункт
             navigationViewItemTapped(it.itemId)
 
             true
         }
     }
 
-    /**
-     * обработка бокового меню
-     */
+    private fun setupViewModel() {
+        lifecycleScope.launch {
+            viewModel.celestialsFlowFromAPI?.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
+            }
+        }
+   }
+
+    // MAIN LOGICS
+
     private fun navigationViewItemTapped(menuItemId: Int) {
         val celestialName =
             when (menuItemId) {
@@ -132,47 +111,20 @@ class HomeFragment : Fragment() {
                 else -> CelestialName.GALAXY
             }
 
-        // обновим данные в окне
-        refreshCelestialData(celestialName)
+        updateUIData(celestialName)
     }
 
-    /**
-     * обновить данные о небесных телах
-     */
-    private fun refreshCelestialData(celestialName: CelestialName) {
-        // обновим заголовок
-        toolbar?.title = celestialName.name
-
-        // перезапустим процесс получения данных в модели
-        val keywords = listOf(celestialName.name)
-
-        // сохраним выбранный пункт navigation view в модель
-        viewModel.saveKeywords(keywords)
+    private fun updateUIData(celestialMenuItemName: CelestialName) {
+        toolbar?.title = celestialMenuItemName.name
+        viewModel.saveSelectedMenuItemName(celestialMenuItemName.name)
     }
 
-    /**
-     * тап по картинке небесного тела
-     */
-    private fun celestialItemTapped(celestialDataItem: CelestialDataItem) {
-        // сохраним выбранное тел в модели
+    private fun showDetailedCelestialData(celestialDataItem: CelestialDataItem) {
         val nasaId = celestialDataItem.nasaId
         val imagePath = celestialDataItem.imagePath
 
-        // перейдем в детализацию
-        val direction =
+        val action =
             HomeFragmentDirections.actionHomeFragmentToDetailsFragment(nasaId, imagePath)
-        findNavController().navigate(direction)
+        findNavController().navigate(action)
     }
-
-    /**
-     * настройка view model
-     */
-    private fun setupViewModel() {
-        // слушаем модель на получение списка небесных тел
-        lifecycleScope.launch {
-            viewModel.celestialsFlow?.collectLatest { pagingData ->
-                adapter.submitData(pagingData)
-            }
-        }
-   }
 }

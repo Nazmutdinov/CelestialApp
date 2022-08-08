@@ -13,47 +13,41 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor (
     private val myPager: MyPager
 ) : ViewModel() {
-    // поток небесных тел из api
-    var celestialsFlow: Flow<PagingData<CelestialDataItem>>? = null
+    var celestialsFlowFromAPI: Flow<PagingData<CelestialDataItem>>? = null
 
-    /* ключевые слова для поиска из navigation view меню
-       по умолчанию это moon
-     */
-    private val _keywords = MutableLiveData<List<String>>()
+    // by default it's MOON
+    private val _menuItemNames = MutableLiveData<List<String>>()
 
     init {
-        initiateFlow()
-        initiateKeywords()
+        initiateFlowCelestialsFromAPI()
+        setupDefaultKeywordForAPI()
     }
 
-    /**
-     * зададим начальный поток небесных тел, который зависит от ключевых слов
-     */
-    private fun initiateFlow() {
-        celestialsFlow = _keywords.asFlow()
+    private fun initiateFlowCelestialsFromAPI() {
+        celestialsFlowFromAPI = _menuItemNames.asFlow()
             .flatMapLatest { list ->
                 val pager = myPager(list, 10)
-
                 pager.flow
             }
             .cachedIn(viewModelScope)
     }
 
-    /**
-     * зададим начальный список ключевых слов. По умолчанию это первый элемент CelestialName
-     */
-    private fun initiateKeywords() {
-        _keywords.value = listOf(CelestialName.values().first().toString())
+    private fun setupDefaultKeywordForAPI() {
+        // by default first element - it's MOON
+        val defaultKeyword = CelestialName.values().first()
+        _menuItemNames.value = listOf(defaultKeyword.toString())
     }
 
     /**
-     * получить поток небесных тел, смена keywords поиска
-     * по умолчанию keywords = moon
-     * keywords задается или из пунктов меню в HomeFragment
-     * или в detailed fragment из тегов небесного тела
+     * by default keywords = moon
+     * keywords define by either HomeFragment navigation menu item
+     * or by NASA API keywords of celestials (see DetailsFragment)
      */
-    fun saveKeywords(keywords: List<String>) {
-        // сохраним выбранный пункт в navigation view меню
-        _keywords.value = keywords
+    fun saveSelectedMenuItemName(menuItemName: String) {
+        _menuItemNames.value = listOf(menuItemName)
+    }
+
+    fun saveApiKeywords(keywordsApi: List<String>) {
+        _menuItemNames.value = keywordsApi
     }
 }
