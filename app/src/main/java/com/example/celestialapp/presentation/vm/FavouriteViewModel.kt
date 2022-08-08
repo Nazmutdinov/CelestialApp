@@ -19,28 +19,25 @@ class FavouriteViewModel @Inject constructor (
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val getFavouriteCelestialsByTagUseCase: GetFavouriteCelestialsByTagUseCase
 ) : ViewModel() {
-    private val _keywords = MutableLiveData<List<TagDataItem>>()
-    val keywords: LiveData<List<TagDataItem>> = _keywords
+    private val _tags = MutableLiveData<List<TagDataItem>>()
+    val tags: LiveData<List<TagDataItem>> = _tags
 
     private val _celestials = MutableLiveData<List<FavouriteCelestialDataItem>>()
     val celestials: LiveData<List<FavouriteCelestialDataItem>> = _celestials
 
-    // для сообщениях об ошибках
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
     /**
-     * получить список всех ключевых слов для списка nasaId небесных тел
+     * load tags and celestials for these tags from db
      */
-    fun getKeywords() {
+    fun loadTags() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val resource = getAllTagsUseCase()) {
                 is ResourceUseCase.Success -> {
-                    resource.data?.let { keywords ->
-                        _keywords.postValue(keywords)
-
-                        // получить список небеслых тел по фильтру ключевых слов
-                        getCelestials(keywords)
+                    resource.data?.let { tags ->
+                        _tags.postValue(tags)
+                        loadCelestialsForSelectedTags(tags)
                     }
                 }
                 else -> _errorMessage.postValue(resource.message)
@@ -49,40 +46,30 @@ class FavouriteViewModel @Inject constructor (
     }
 
     /**
-     * тапнули по тегу
-     * нужно сменить состояние тега (включен\выключен)
-     * заново получить список небесных тел для включенных тегов
+     * when tag was tapped change tag state and refresh list celestials
      */
-    fun tappedKeyword(keyword: TagDataItem) {
-        // переключим тег
-        keyword.toggle()
+    fun tappedTag(tag: TagDataItem) {
+        tag.toggle()
 
-        _keywords.value?.map {
+        _tags.value?.map {
             it.copy()
         }?.map { tagDataItem ->
-            if (tagDataItem.tagId == keyword.tagId) keyword else tagDataItem
-        }?.let { newKeywordList ->
+            if (tagDataItem.tagId == tag.tagId) tag else tagDataItem
+        }?.let { tagList ->
             viewModelScope.launch(Dispatchers.IO) {
-                _keywords.postValue(newKeywordList)
+                _tags.postValue(tagList)
 
-                // обновим список небесных тел
-                getCelestials(newKeywordList)
+                loadCelestialsForSelectedTags(tagList)
             }
         }
     }
 
 
-
-    /**
-     * получить список небесных тел для заданного списка ключевых слов
-     */
-    private suspend fun getCelestials(keywords: List<TagDataItem>) {
-        // достанем список ключевых слов
-        keywords.filter {
-            // берем только включенные теги
+    private suspend fun loadCelestialsForSelectedTags(tags: List<TagDataItem>) {
+        tags.filter {
             it.selected
-        }.map { it.tagId }.let { filteredKeywordId ->
-            when (val resource = getFavouriteCelestialsByTagUseCase(filteredKeywordId)) {
+        }.map { it.tagId }.let { filteredTagId ->
+            when (val resource = getFavouriteCelestialsByTagUseCase(filteredTagId)) {
                 is ResourceUseCase.Success -> {
                     resource.data?.let {
                         _celestials.postValue(it)

@@ -15,7 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
- * окно избранных небесных тел
+ * list of celestials with tags from local db
  */
 @AndroidEntryPoint
 class FavouriteFragment : Fragment() {
@@ -23,11 +23,11 @@ class FavouriteFragment : Fragment() {
     private val binding: FragmentFavouriteBinding get() = _binding!!
 
     private val keywordsAdapter: KeywordAdapter by lazy {
-        KeywordAdapter(requireContext(), ::keywordTapped)
+        KeywordAdapter(requireContext(), ::tagTapped)
     }
 
     private val celestialsAdapter: FavouriteCelestialAdapter by lazy {
-        FavouriteCelestialAdapter(::celestialItemTapped)
+        FavouriteCelestialAdapter(::showDetailedCelestialData)
     }
 
     private val viewModel: FavouriteViewModel by viewModels()
@@ -42,10 +42,8 @@ class FavouriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // настройка интерфейса
-        setupUI()
 
-        // настройка viewModel
+        setupUI()
         setupViewModel()
     }
 
@@ -54,78 +52,53 @@ class FavouriteFragment : Fragment() {
         _binding = null
     }
 
-    /**
-     * настройка UI элементов окна
-     */
     private fun setupUI() {
         with(binding) {
-            // адаптер ключевых слов
-            favouriteFragmentKeywordsRecycleView.adapter = keywordsAdapter
-
-            // адаптер небесных тел
-            favouriteFragmentCelestialsRecycleView.adapter = celestialsAdapter
+            keywordsRecycleView.adapter = keywordsAdapter
+            celestialsRecycleView.adapter = celestialsAdapter
         }
 
-        // настройка меню в toolbar
         setupToolbar()
     }
 
-    /**
-     * настройка toolbar
-     */
     private fun setupToolbar() {
-        // слушаем нажатие пунктов меню
         binding.favouriteFragmentToolbar.setOnMenuItemClickListener {
-            // переход в управление тегами
-            val direction =
+            val action =
                 FavouriteFragmentDirections.actionFavouriteFragmentToKeywordsManagerFragment()
-            findNavController().navigate(direction)
+            findNavController().navigate(action)
 
             true
         }
     }
 
-
-    /**
-     * тап по тегу
-     */
-    private fun keywordTapped(item: TagDataItem) {
-        viewModel.tappedKeyword(item)
-        keywordsAdapter.notifyDataSetChanged()
-    }
-
-    /**
-     * переход в детальную инфу небесного тела
-     */
-    private fun celestialItemTapped(favouriteCelestialDataItem: FavouriteCelestialDataItem) {
-        val nasaId = favouriteCelestialDataItem.nasaId
-
-        val direction =
-            FavouriteFragmentDirections.actionFavouriteFragmentToFavouriteDetailsFragment(nasaId)
-        findNavController().navigate(direction)
-    }
-
-    /**
-     * настройка view model
-     */
     private fun setupViewModel() {
-        // запускаем получение ключевых слов
-        viewModel.getKeywords()
+        viewModel.loadTags()
 
-        // слушаем модель на получение ключевых слов
-        viewModel.keywords.observe(viewLifecycleOwner) {
+        viewModel.tags.observe(viewLifecycleOwner) {
             keywordsAdapter.submitList(it)
         }
 
-        // слушаем модель на получение тегов
         viewModel.celestials.observe(viewLifecycleOwner) {
             celestialsAdapter.submitList(it)
             celestialsAdapter.notifyDataSetChanged()
         }
 
-        // слушаем модель на ошибки
         viewModel.errorMessage.observe(viewLifecycleOwner) {
             Snackbar.make(requireView(), it.toString(), Snackbar.LENGTH_SHORT).show()
         }
     }
+
+    // MAIN LOGICS
+    private fun tagTapped(item: TagDataItem) {
+        viewModel.tappedTag(item)
+        keywordsAdapter.notifyDataSetChanged()
+    }
+
+    private fun showDetailedCelestialData(favouriteCelestialDataItem: FavouriteCelestialDataItem) {
+        val nasaId = favouriteCelestialDataItem.nasaId
+        val action =
+            FavouriteFragmentDirections.actionFavouriteFragmentToFavouriteDetailsFragment(nasaId)
+        findNavController().navigate(action)
+    }
+
 }
