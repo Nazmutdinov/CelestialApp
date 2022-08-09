@@ -45,10 +45,7 @@ class KeywordsManagerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // настройка интерфейса
         setupUI()
-
-        // настройка viewModel
         setupViewModel()
     }
 
@@ -57,44 +54,31 @@ class KeywordsManagerFragment : Fragment() {
         _binding = null
     }
 
-    /**
-     * настройка UI элементов окна
-     */
     private fun setupUI() {
         with(binding) {
-            // настройка адаптера
             recycleView.adapter = adapter
 
-            // разделитеь м/у строками recycle view
             val decoration = DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
             recycleView.addItemDecoration(decoration)
 
-            // обработчик свайпа влево
+            // swipe on left for deleting
             val itemTouchHelperCallback = ItemTouchHelperCallback(::deleteKeyword)
             val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
 
             itemTouchHelper.attachToRecyclerView(recycleView)
         }
 
-        // настройка меню в toolbar
         setupToolbar()
     }
 
-    /**
-     * настройка toolbar
-     */
     private fun setupToolbar() {
         with(binding.toolbar) {
-            // слушаем кнопку назад
             setNavigationOnClickListener {
                 findNavController().popBackStack()
             }
 
-            // слушаем тап по меню
             setOnMenuItemClickListener {
-                // показать окно добавления тега
                 dialog.showAddTagDialog(requireContext()) { name ->
-                    // добавим тег в БД
                     viewModel.addKeyword(name)
                 }
                 true

@@ -20,22 +20,18 @@ class KeywordsManagerViewModel @Inject constructor (
     private val insertTagDataUseCase: InsertTagDataUseCase,
     private val deleteTagsDataUseCase: DeleteTagsDataUseCase
 ) : ViewModel() {
-    private val _keywords = MutableLiveData<List<TagDataItem>>()
-    val keywords: LiveData<List<TagDataItem>> = _keywords
+    private val _tags = MutableLiveData<List<TagDataItem>>()
+    val tags: LiveData<List<TagDataItem>> = _tags
 
-    // для сообщениях об ошибках
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    /**
-     * получить список всех ключевых слов
-     */
-    fun getKeywords() {
+    fun loadTags() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val resource = getAllTagsUseCase()) {
                 is ResourceUseCase.Success -> {
                     resource.data?.let {
-                        _keywords.postValue(it)
+                        _tags.postValue(it)
                     }
                 }
                 else -> _errorMessage.postValue(resource.message)
@@ -43,12 +39,9 @@ class KeywordsManagerViewModel @Inject constructor (
         }
     }
 
-    /**
-     * добавить тег
-     */
-    fun addKeyword (name: String) {
+    fun addTag (newTagName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val resource = insertTagDataUseCase(name)
+            val resource = insertTagDataUseCase(newTagName)
             if (resource is ResourceUseCase.Error) _errorMessage.postValue(resource.message)
         }
     }
@@ -60,7 +53,7 @@ class KeywordsManagerViewModel @Inject constructor (
         viewModelScope.launch(Dispatchers.IO) {
             when (val resource = deleteTagsDataUseCase(keywordId)) {
                 // запустим обновление спика тегов у подписанта
-                is ResourceUseCase.Success -> getKeywords()
+                is ResourceUseCase.Success -> loadTags()
                 else -> _errorMessage.postValue(resource.message)
             }
         }
@@ -69,7 +62,7 @@ class KeywordsManagerViewModel @Inject constructor (
     /**
      * получить ключевое слово по индексу массива
       */
-    fun getKeywordByPosition(position: Int): TagDataItem? = _keywords.value?.get(position)
+    fun getKeywordByPosition(position: Int): TagDataItem? = _tags.value?.get(position)
 
 }
 
