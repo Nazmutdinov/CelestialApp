@@ -24,7 +24,6 @@ class ZoomFragment : Fragment() {
     private val binding: FragmentZoomBinding get() = _binding!!
 
     private var toolbarFragment: Toolbar? = null
-
     private var nasaId: String? = null
 
     private val viewModel: ZoomViewModel by viewModels()
@@ -48,10 +47,7 @@ class ZoomFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // настройка интерфейса
         setupUI()
-
-        // настройка viewModel
         setupViewModel()
     }
 
@@ -64,7 +60,6 @@ class ZoomFragment : Fragment() {
         with(binding) {
             toolbarFragment = toolbar
 
-            // слушаем тап по кнопке назад
             toolbarFragment?.setNavigationOnClickListener {
                 // закрыть окно
                 findNavController().popBackStack()
@@ -72,31 +67,22 @@ class ZoomFragment : Fragment() {
         }
     }
 
-
-    /**
-     * настройка view model
-     */
     private fun setupViewModel() {
-        // запрашиваем данные из модели
-        viewModel.getImage(nasaId)
+        viewModel.loadImage(nasaId)
 
-        // слушаем модель на получение данных небесных тел из апи
         viewModel.image.observe(viewLifecycleOwner) { image ->
             updateUIData(image)
         }
 
-        // слушаем модель на ошибки
         viewModel.errorMessage.observe(viewLifecycleOwner) {
             Snackbar.make(requireView(), it.toString(), Snackbar.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * обновить данные в окне
-     */
+    // MAIN UI LOGICS
+
     private fun updateUIData(image: ByteArray?) {
         with(binding) {
-            // берем картинку из кэша
             photoView.load(image) {
                 target { drawable ->
                     photoView.setImageDrawable(drawable)

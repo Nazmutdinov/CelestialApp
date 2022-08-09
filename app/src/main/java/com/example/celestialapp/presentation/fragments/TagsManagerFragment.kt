@@ -9,9 +9,9 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
-import com.example.celestialapp.databinding.FragmentKeywordsManagerBinding
+import com.example.celestialapp.databinding.FragmentTagsManagerBinding
 import com.example.celestialapp.presentation.adapters.KeywordsManagerAdapter
-import com.example.celestialapp.presentation.vm.KeywordsManagerViewModel
+import com.example.celestialapp.presentation.vm.TagsManagerViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -21,9 +21,9 @@ import javax.inject.Inject
  * add \ delete tag from local database
  */
 @AndroidEntryPoint
-class KeywordsManagerFragment : Fragment() {
-    private var _binding: FragmentKeywordsManagerBinding? = null
-    private val binding: FragmentKeywordsManagerBinding get() = _binding!!
+class TagsManagerFragment : Fragment() {
+    private var _binding: FragmentTagsManagerBinding? = null
+    private val binding: FragmentTagsManagerBinding get() = _binding!!
 
     private val adapter: KeywordsManagerAdapter by lazy {
         KeywordsManagerAdapter()
@@ -31,14 +31,14 @@ class KeywordsManagerFragment : Fragment() {
 
     @Inject lateinit var dialog: DialogFactory
 
-    private val viewModel: KeywordsManagerViewModel by viewModels()
+    private val viewModel: TagsManagerViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentKeywordsManagerBinding.inflate(inflater, container, false)
+        _binding = FragmentTagsManagerBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -62,7 +62,7 @@ class KeywordsManagerFragment : Fragment() {
             recycleView.addItemDecoration(decoration)
 
             // swipe on left for deleting
-            val itemTouchHelperCallback = ItemTouchHelperCallback(::deleteKeyword)
+            val itemTouchHelperCallback = ItemTouchHelperCallback(::deleteTag)
             val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
 
             itemTouchHelper.attachToRecyclerView(recycleView)
@@ -79,47 +79,37 @@ class KeywordsManagerFragment : Fragment() {
 
             setOnMenuItemClickListener {
                 dialog.showAddTagDialog(requireContext()) { name ->
-                    viewModel.addKeyword(name)
+                    viewModel.addTag(name)
                 }
                 true
             }
         }
     }
 
-    /**
-     * удалить ключевое слово через диалог подтверждения
-     */
-    private fun deleteKeyword(position: Int) {
-        viewModel.getKeywordByPosition(position)?.let {  keyword ->
-            dialog.showDeleteTagDialog(requireContext(), keyword.name) { confirmDelete ->
-                if (confirmDelete) {
-                    // ответ диалога = подтверждение, вызываем удаление ключевого слова в БД
-                    viewModel.deleteKeyword(keyword.tagId)
-                } else {
-                    /* ответ диалога = отмена, вызываем восстановление элемента
-                    т.к. свайп уже был и элемент исчез визуально
-                     */
-                    adapter.notifyDataSetChanged()
-                }
-            }
-        }
-    }
-
-    /**
-     * настройка view model
-     */
     private fun setupViewModel() {
-        // запрашиваем данные из модели
-        viewModel.getKeywords()
+        viewModel.loadTags()
 
-        // слушаем модель на получение списка ключевых слов
-        viewModel.keywords.observe(viewLifecycleOwner) {
+        viewModel.tags.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
 
-        // слушаем модель на ошибки
         viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             Snackbar.make(requireView(), message.toString(), Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    // MAIN LOGICS
+
+    private fun deleteTag(position: Int) {
+        viewModel.getTagByPosition(position)?.let { keyword ->
+            dialog.showDeleteTagDialog(requireContext(), keyword.name) { confirmDelete ->
+                if (confirmDelete) {
+                    viewModel.deleteTag(keyword.tagId)
+                } else {
+                    // cause delete was canceled by swipe, we need call restore "deleted" in recycle view element
+                    adapter.notifyDataSetChanged()
+                }
+            }
         }
     }
 }

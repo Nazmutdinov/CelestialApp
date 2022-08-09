@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class KeywordsManagerViewModel @Inject constructor (
+class TagsManagerViewModel @Inject constructor (
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val insertTagDataUseCase: InsertTagDataUseCase,
     private val deleteTagsDataUseCase: DeleteTagsDataUseCase
@@ -46,13 +46,9 @@ class KeywordsManagerViewModel @Inject constructor (
         }
     }
 
-    /**
-     * удалить тег
-     */
-    fun deleteKeyword (keywordId: Int) {
+    fun deleteTag (tagId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val resource = deleteTagsDataUseCase(keywordId)) {
-                // запустим обновление спика тегов у подписанта
+            when (val resource = deleteTagsDataUseCase(tagId)) {
                 is ResourceUseCase.Success -> loadTags()
                 else -> _errorMessage.postValue(resource.message)
             }
@@ -60,9 +56,9 @@ class KeywordsManagerViewModel @Inject constructor (
     }
 
     /**
-     * получить ключевое слово по индексу массива
+     * get tag by array index
       */
-    fun getKeywordByPosition(position: Int): TagDataItem? = _tags.value?.get(position)
+    fun getTagByPosition(position: Int): TagDataItem? = _tags.value?.get(position)
 
 }
 

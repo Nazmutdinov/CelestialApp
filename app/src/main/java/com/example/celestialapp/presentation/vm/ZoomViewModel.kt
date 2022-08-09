@@ -19,14 +19,13 @@ class ZoomViewModel @Inject constructor (
     private val _image = MutableLiveData<ByteArray?>()
     val image: LiveData<ByteArray?> = _image
 
-    // для сообщениях об ошибках
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
     /**
-     * получить картинку из БД для заддного nasaId
+     * load image from local db
      */
-    fun getImage(id: String?) {
+    fun loadImage(id: String?) {
         id?.let { nasaId ->
             viewModelScope.launch(Dispatchers.IO) {
                 when (val resource = getFavouriteCelestialByIdUseCase(nasaId)) {
@@ -39,9 +38,6 @@ class ZoomViewModel @Inject constructor (
                 }
             }
         }
-
     }
-
-
 }
 
