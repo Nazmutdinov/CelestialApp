@@ -5,7 +5,6 @@ import com.example.celestialapp.data.remote.detailedDto.DetailedInfoDto
 import com.example.celestialapp.data.remote.imageDto.ImageDataInfo
 import com.example.celestialapp.data.repository.Resource
 
-// интерфейс к удаленному API
 interface RemoteDataRepository {
     /**
      * подробные данные по небесному телу nasa_id
@@ -17,7 +16,7 @@ interface RemoteDataRepository {
      */
     suspend fun getImagePath(nasaId: String): Resource<ImageDataInfo>
 
-    suspend fun getLargeImage(imagePath: String, callback: (Resource<Bitmap>) -> Unit)
+    suspend fun getLargeImage(imagePath: String): Resource<Bitmap>
 }
 
 

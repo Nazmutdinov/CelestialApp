@@ -1,7 +1,5 @@
 package com.example.celestialapp.presentation.vm
 
-import android.graphics.Bitmap
-
 import androidx.lifecycle.*
 import com.example.celestialapp.domain.models.FavouriteCelestialDataItem
 import com.example.celestialapp.domain.models.TagDataItem
@@ -23,9 +21,7 @@ open class DetailedViewModel @Inject constructor(
     private val getKeywordsByNasaIdUseCase: GetKeywordsByNasaIdUseCase,
     private val updateTagCelestialUseCase: UpdateTagCelestialUseCase,
     private val addTagCelestialUseCase: AddTagCelestialUseCase,
-    private val deleteCrossRefDataUseCase: DeleteCrossRefDataUseCase,
-    private val getLargeImageUseCase: GetLargeImageUseCase,
-    private val updateCacheUseCase: UpdateCacheUseCase
+    private val deleteCrossRefDataUseCase: DeleteCrossRefDataUseCase
 ) : ViewModel() {
     // main data
     private val _detailedData = MutableLiveData<FavouriteCelestialDataItem>()
@@ -63,23 +59,10 @@ open class DetailedViewModel @Inject constructor(
             is ResourceUseCase.Success -> {
                 resource.data?.let { dataItem ->
                     _detailedData.postValue(dataItem)
-                    loadImageDataFromNetwork(dataItem.nasaId, dataItem.imagePath)
+                 //   loadImageDataFromNetwork(dataItem.nasaId, dataItem.imagePath)
                 }
             }
             else -> _errorMessage.postValue(resource.message)
-        }
-    }
-
-    private suspend fun loadImageDataFromNetwork(nasaId: String, imagePath: String) {
-        getLargeImageUseCase(imagePath) { resourceUseCase ->
-            when (resourceUseCase) {
-                is ResourceUseCase.Success -> {
-                    resourceUseCase.data?.let { bitmap ->
-                        updateCache(nasaId, bitmap)
-                    }
-                }
-                else -> _errorMessage.postValue(resourceUseCase.message)
-            }
         }
     }
 
@@ -168,14 +151,14 @@ open class DetailedViewModel @Inject constructor(
         else deleteFavouriteCelestial(tag.tagId)
     }
 
-    private fun updateCache(nasaId: String, bitmap: Bitmap) {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (val resource = updateCacheUseCase(nasaId, bitmap)) {
-                is ResourceUseCase.Success -> resource.data?.let { _detailedData.postValue(it) }
-                else -> _errorMessage.postValue(resource.message)
-            }
-        }
-    }
+//    private fun updateCache(nasaId: String, bitmap: Bitmap) {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            when (val resource = updateCacheUseCase(nasaId, bitmap)) {
+//                is ResourceUseCase.Success -> resource.data?.let { _detailedData.postValue(it) }
+//                else -> _errorMessage.postValue(resource.message)
+//            }
+//        }
+//    }
 
     /**
      * load NASA keywords for celestial

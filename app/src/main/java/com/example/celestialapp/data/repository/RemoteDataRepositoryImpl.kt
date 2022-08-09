@@ -2,7 +2,6 @@ package com.example.celestialapp.data.repository
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import coil.ImageLoader
 import coil.request.ImageRequest
@@ -17,9 +16,7 @@ class RemoteDataRepositoryImpl(
     private val remoteApiService: RemoteApiService,
     private val imageLoader: ImageLoader
     ) : RemoteDataRepository {
-    /**
-     * подробные данные по небесному телу nasa_id
-     */
+
     override suspend fun getDetailedData(nasaId: String): Resource<DetailedInfoDto> {
         return try {
             val resource = remoteApiService.getDetailedDataInfoDto(nasaId)
@@ -30,9 +27,6 @@ class RemoteDataRepositoryImpl(
         }
     }
 
-    /**
-     * ссылка на json с картинками medium и thumbnail
-     */
     override suspend fun getImagePath(nasaId: String): Resource<ImageDataInfo> {
         return try {
                 val resource = remoteApiService.getImageDataInfoDto(nasaId)
@@ -42,24 +36,17 @@ class RemoteDataRepositoryImpl(
         }
     }
 
-    override suspend fun getLargeImage(imagePath: String, callback: (Resource<Bitmap>) -> Unit) {
+    override suspend fun getLargeImage(imagePath: String): Resource<Bitmap> {
         val request = ImageRequest.Builder(context)
             .data(imagePath)
-            .target(
-                onStart = {
-                          Log.d("myTag","start loading")
-                },
-                onSuccess = {
-                    Log.d("myTag","loaded!")
-                    callback( Resource.Success(it.toBitmap()))
-                },
-                onError = {
-                    Log.d("myTag","error")
-                    callback(Resource.Error(context.getString(R.string.getLargeImageError)))
-                }
-            )
             .build()
 
-        imageLoader.execute(request)
+        val imageResult = imageLoader.execute(request)
+
+        imageResult.drawable?.let { drawable ->
+            return Resource.Success(drawable.toBitmap() )
+        }
+
+        return Resource.Error(context.getString(R.string.getLargeImageError))
     }
 }

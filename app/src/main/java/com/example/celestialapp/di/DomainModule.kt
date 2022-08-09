@@ -47,9 +47,10 @@ object DomainModule {
     fun provideGetDetailedDataUseCase(
         localDataRepository: LocalDataRepository,
         remoteDataRepository: RemoteDataRepository,
-        localDataMapper: LocalDataMapper
+        localDataMapper: LocalDataMapper,
+        utils: Utils
     ): GetDetailedDataUseCase =
-        GetDetailedDataUseCase(localDataRepository, remoteDataRepository, localDataMapper)
+        GetDetailedDataUseCase(localDataRepository, remoteDataRepository, localDataMapper, utils)
 
     @Provides
     @ViewModelScoped
@@ -86,23 +87,6 @@ object DomainModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetLargeImageUseCase(
-        remoteDataRepository: RemoteDataRepository
-    ) = GetLargeImageUseCase(remoteDataRepository)
-
-    @Provides
-    @ViewModelScoped
-    fun provideUpdateCacheUseCase(
-        localDataRepository: LocalDataRepository,
-        localDataMapper: LocalDataMapper,
-        utils: Utils
-    ): UpdateCacheUseCase =
-        UpdateCacheUseCase(localDataRepository, localDataMapper, utils)
-
-
-    @Provides
-    @ViewModelScoped
     fun provideUpdateTagCelestialUseCase(localDataRepository: LocalDataRepository): UpdateTagCelestialUseCase =
         UpdateTagCelestialUseCase(localDataRepository)
-
 }
