@@ -9,9 +9,6 @@ import com.example.celestialapp.domain.models.TagDataItem
 class LocalDataMapper(
     private val utils: Utils
 ) {
-    /**
-     * маппинг тега KeywordInfoEntity из БД в модель KeywordDataItem
-     */
     fun getSelectedTagDataItem(
         tagInfoEntity: TagInfoEntity
     ): TagDataItem =
@@ -32,9 +29,6 @@ class LocalDataMapper(
             color = R.color.white
         )
 
-    /**
-     * маппинг небесного тела CelestialInfoEntity из БД в модель FavouriteCelestialDataItem
-     */
     fun mapCelestialInfoEntityToModel(
         celestialInfoEntity: CelestialInfoEntity
     ): FavouriteCelestialDataItem =
@@ -42,21 +36,17 @@ class LocalDataMapper(
             celestialId = celestialInfoEntity.celestialId,
             nasaId = celestialInfoEntity.nasaId,
             title = celestialInfoEntity.title,
-            yearsAgo = utils.getYearAgo(celestialInfoEntity.date),
+            photoOwnerCreatedYearsAgo = utils.getYearsAgo(celestialInfoEntity.date),
             description = celestialInfoEntity.description,
-            image =  celestialInfoEntity.image,
+            image = celestialInfoEntity.image,
             imagePath = celestialInfoEntity.imagePath,
-            orderDateCreated = celestialInfoEntity.dateFavouriteCreated
+            dateWhenInDBSaved = celestialInfoEntity.dateFavouriteCreated
         )
 
-    /**
-     * маппинг списка небесных тел CelestialInfoEntity из БД в список моделей FavouriteCelestialDataItem
-     */
     fun mapListCelestialInfoEntityToModel(
         listCelestialInfoEntity: List<CelestialInfoEntity>
     ): List<FavouriteCelestialDataItem> =
         listCelestialInfoEntity.map {
             mapCelestialInfoEntityToModel(it)
         }
-
 }

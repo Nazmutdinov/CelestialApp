@@ -4,14 +4,10 @@ import com.example.celestialapp.data.remote.generalDto.Item
 import com.example.celestialapp.domain.models.CelestialDataItem
 
 class RemoteDataMapper {
-    fun mapDtoToModel(
-        item: Item, favourite: Boolean
-    ): CelestialDataItem {
+    fun mapDtoToModel(item: Item): CelestialDataItem {
         val nasaId = item.data.first().nasa_id ?: ""
         val imagePath =  item.links.first().href ?: ""
 
-
-        return CelestialDataItem(nasaId, imagePath, favourite)
+        return CelestialDataItem(nasaId, imagePath)
     }
-
 }

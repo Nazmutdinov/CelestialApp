@@ -5,3 +5,11 @@ data class Item(
     val href: String,
     val links: List<Link>
 )
+{
+    fun isNotEmpty(): Boolean {
+        val title = this.data.first().title
+        val image = this.links.first().href
+
+        return !(title == null || image == null)
+    }
+}

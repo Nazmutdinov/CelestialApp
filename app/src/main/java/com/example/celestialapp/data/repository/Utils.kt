@@ -10,27 +10,21 @@ import java.util.*
 
 class Utils(private val context: Context) {
     /**
-     * разница лет м/у датой снимка небесного тела и текущей датой
+     * get difference b/w date when owner created photo and Now()
      */
-    fun getYearAgo(text: String): String {
+    fun getYearsAgo(text: String): String {
         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
         val photoDate = formatter.parse(text) as Date
-
         val photoCalendar = Calendar.getInstance()
 
         photoCalendar.time = photoDate
 
         val currentCalendar = Calendar.getInstance()
-
         val currentYearDays = currentCalendar.get(Calendar.DAY_OF_YEAR)
-
         val photoYearDays = photoCalendar.get(Calendar.DAY_OF_YEAR)
-
         val yearsAgo: Int = currentCalendar
             .get(Calendar.YEAR) - photoCalendar.get(Calendar.YEAR) - if (currentYearDays < photoYearDays) 1 else 0
 
-        // делаем анализ давности
-        // если менее 10 лет назад
         with(context) {
             if (yearsAgo < 10) {
                 return when (yearsAgo.toString().last().digitToInt()) {
@@ -41,10 +35,8 @@ class Utils(private val context: Context) {
                 }
             }
 
-            // если менее 20 лет назад
             if (yearsAgo < 20) return getString(R.string.years_ago2, yearsAgo)
 
-            // если больше 20 лет назад
             return when (yearsAgo.toString().last().digitToInt()) {
                 1 -> getString(R.string.year_ago)
                 in 2..4 -> getString(R.string.years_ago1, yearsAgo)
@@ -123,6 +115,4 @@ class Utils(private val context: Context) {
      */
     fun getBitmap(byteArray: ByteArray): Bitmap =
         BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-
-
 }

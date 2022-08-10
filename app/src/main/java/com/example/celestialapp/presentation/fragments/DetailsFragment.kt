@@ -43,7 +43,7 @@ class DetailsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         arguments?.let {
-            nasaId = it.getString(Constants.nav_argument1).toString()
+            nasaId = it.getString(Constants.nav_argument1)
         }
         super.onCreate(savedInstanceState)
     }
@@ -150,7 +150,7 @@ class DetailsFragment : Fragment() {
     private fun updateUIData(data: FavouriteCelestialDataItem) {
         with(binding) {
             titleTextView.text = data.title
-            timeAgoTextView.text = data.yearsAgo
+            timeAgoTextView.text = data.photoOwnerCreatedYearsAgo
             descriptionTextView.text = data.description
 
             celestialImageView.load(data.image) {
@@ -178,7 +178,6 @@ class DetailsFragment : Fragment() {
         adapter.notifyDataSetChanged()
     }
 
-    // ADDITIONAL LOGICS
 
     private fun sharePhotoToViberMessengers(imagePath: String) {
         val sendIntent: Intent = Intent().apply {

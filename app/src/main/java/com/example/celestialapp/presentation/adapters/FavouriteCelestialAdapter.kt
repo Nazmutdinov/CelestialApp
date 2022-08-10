@@ -26,7 +26,7 @@ class FavouriteCelestialAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = getItem(position) ?: return
 
-       onBind(holder, item)
+        onBind(holder, item)
     }
 
     private fun onBind(holder: Holder, item: FavouriteCelestialDataItem) {

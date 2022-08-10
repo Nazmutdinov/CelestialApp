@@ -138,7 +138,7 @@ class FavouriteDetailsFragment : Fragment() {
     private fun updateUIData(data: FavouriteCelestialDataItem) {
         with(binding) {
             titleTextView.text = data.title
-            timeAgoTextView.text = data.yearsAgo
+            timeAgoTextView.text = data.photoOwnerCreatedYearsAgo
             descriptionTextView.text = data.description
 
             celestialImageView.load(data.image) {
@@ -152,8 +152,6 @@ class FavouriteDetailsFragment : Fragment() {
     private fun keywordTapped(item: TagDataItem) {
         viewModel.tappedTag(item)
     }
-
-    // ADDITIONAL LOGICS
 
     private fun sharePhoto(imagePath: String) {
         val sendIntent: Intent = Intent().apply {

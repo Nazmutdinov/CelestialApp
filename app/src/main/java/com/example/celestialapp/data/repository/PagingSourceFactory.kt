@@ -3,7 +3,6 @@ package com.example.celestialapp.data.repository
 import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.example.celestialapp.data.remote.generalDto.Item
 import com.example.celestialapp.domain.models.CelestialDataItem
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -11,7 +10,7 @@ import kotlinx.coroutines.withContext
 class PagingSourceFactory(
     private val keywords: List<String>,
     private val dispatcher: CoroutineDispatcher,
-    private val remoteApiService:  RemoteApiService,
+    private val remoteApiService: RemoteApiService,
     private val remoteDataMapper: RemoteDataMapper
 ) : PagingSource<Int, CelestialDataItem>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CelestialDataItem> {
@@ -20,11 +19,10 @@ class PagingSourceFactory(
                 val pageIndex = params.key ?: 1
                 val dataInfoDto = remoteApiService.getDataInfoDto(keywords, pageIndex)
 
-                val data = dataInfoDto.collection.items.filter { item ->
-                    !isDataItemEmpty(item)
-                }.map { item ->
-                    remoteDataMapper.mapDtoToModel(item, false)
-                }
+                val data = dataInfoDto.collection.items.filter { it.isNotEmpty() }
+                    .map { item ->
+                        remoteDataMapper.mapDtoToModel(item)
+                    }
 
                 if (data.isEmpty()) return@withContext LoadResult.Error(throwable = Exception())
                 return@withContext LoadResult.Page(
@@ -46,13 +44,10 @@ class PagingSourceFactory(
         }
     }
 
-    /**
-     * берем только непустые данные
-     */
-    private fun isDataItemEmpty(item: Item): Boolean {
-        val title = item.data.first().title
-        val image = item.links.first().href
-
-        return (title == null || image == null)
-    }
+//    private fun isDataItemEmpty(item: Item): Boolean {
+//        val title = item.data.first().title
+//        val image = item.links.first().href
+//
+//        return (title == null || image == null)
+//    }
 }

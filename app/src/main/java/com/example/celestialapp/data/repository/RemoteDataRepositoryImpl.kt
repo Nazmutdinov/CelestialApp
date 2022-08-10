@@ -10,7 +10,6 @@ import com.example.celestialapp.data.remote.detailedDto.DetailedInfoDto
 import com.example.celestialapp.data.remote.imageDto.ImageDataInfo
 import com.example.celestialapp.domain.repository.RemoteDataRepository
 
-
 class RemoteDataRepositoryImpl(
     private val context: Context,
     private val remoteApiService: RemoteApiService,

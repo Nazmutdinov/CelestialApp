@@ -4,10 +4,11 @@ import androidx.paging.*
 import com.example.celestialapp.domain.models.CelestialDataItem
 import kotlinx.coroutines.CoroutineDispatcher
 
-// получить все небесные тела из api
+/**
+ * get all celestials data from API
+ */
 class MyPager(
     private val dispatcher: CoroutineDispatcher,
-    //private val remoteApi: RemoteApi,
     private val remoteApiService: RemoteApiService,
     private val remoteDataMapper: RemoteDataMapper
 ) {
