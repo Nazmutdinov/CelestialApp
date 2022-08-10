@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import coil.load
-import com.example.celestialapp.databinding.FragmentFavouriteDetailsBinding
+import com.example.celestialapp.databinding.FragmentDetailsBinding
 import com.example.celestialapp.domain.models.FavouriteCelestialDataItem
 import com.example.celestialapp.domain.models.TagDataItem
 import com.example.celestialapp.presentation.CelestialEvent
@@ -26,20 +26,20 @@ import javax.inject.Inject
  * search same celestials by NASA API keywords
  */
 @AndroidEntryPoint
-class FavouriteDetailsFragment : Fragment() {
-    private var _binding: FragmentFavouriteDetailsBinding? = null
-    private val binding: FragmentFavouriteDetailsBinding get() = _binding!!
+open class FavouriteDetailsFragment : Fragment() {
+    var _binding: FragmentDetailsBinding? = null
+    val binding: FragmentDetailsBinding get() = _binding!!
 
-    private var toolbarFragment: Toolbar? = null
+    var toolbarFragment: Toolbar? = null
 
-    private val adapter: KeywordAdapter by lazy {
+    val adapter: KeywordAdapter by lazy {
         KeywordAdapter(requireContext(), ::keywordTapped)
     }
 
     @Inject
     lateinit var dialog: DialogFactory
-    private var nasaId: String? = null
-    private val viewModel: DetailedViewModel by viewModels()
+    var nasaId: String? = null
+    val viewModel: DetailedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         arguments?.let {
@@ -53,7 +53,7 @@ class FavouriteDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFavouriteDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentDetailsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -69,9 +69,11 @@ class FavouriteDetailsFragment : Fragment() {
         _binding = null
     }
 
-    private fun setupUI() {
+    open fun setupUI() {
         with(binding) {
             toolbarFragment = toolbar
+
+
 
             recycleView.adapter = adapter
 
@@ -105,7 +107,7 @@ class FavouriteDetailsFragment : Fragment() {
         }
     }
 
-    private fun setupViewModel() {
+    fun setupViewModel() {
         nasaId?.let { viewModel.loadDataFromCacheOrAPI(it) }
 
         viewModel.detailedData.observe(viewLifecycleOwner) { celestial ->
@@ -135,7 +137,7 @@ class FavouriteDetailsFragment : Fragment() {
 
     // MAIN UI LOGICS
 
-    private fun updateUIData(data: FavouriteCelestialDataItem) {
+    fun updateUIData(data: FavouriteCelestialDataItem) {
         with(binding) {
             titleTextView.text = data.title
             timeAgoTextView.text = data.photoOwnerCreatedYearsAgo
@@ -149,11 +151,11 @@ class FavouriteDetailsFragment : Fragment() {
         }
     }
 
-    private fun keywordTapped(item: TagDataItem) {
+    fun keywordTapped(item: TagDataItem) {
         viewModel.tappedTag(item)
     }
 
-    private fun sharePhoto(imagePath: String) {
+    fun sharePhoto(imagePath: String) {
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_TEXT, imagePath)
@@ -164,11 +166,11 @@ class FavouriteDetailsFragment : Fragment() {
         startActivity(shareIntent)
     }
 
-    private fun showSnackBar(message: String) {
+    fun showSnackBar(message: String) {
         Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
     }
 
-    private fun showSnackBar(resId: Int) {
+    fun showSnackBar(resId: Int) {
         Snackbar.make(requireView(), getString(resId), Snackbar.LENGTH_SHORT).show()
     }
 }
