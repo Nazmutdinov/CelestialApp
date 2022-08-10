@@ -17,11 +17,11 @@ import javax.inject.Inject
 open class DetailedViewModel @Inject constructor(
     private val getFavouriteCelestialByIdUseCase: GetFavouriteCelestialByIdUseCase,
     private val getDetailedDataUseCase: GetDetailedDataUseCase,
-    private val getTagsByNasaIdUseCase: GetTagsByNasaIdUseCase,
+    private val getAllTagsByNasaIdUseCase: GetAllTagsByNasaIdUseCase,
     private val getKeywordsByNasaIdUseCase: GetKeywordsByNasaIdUseCase,
     private val updateTagCelestialUseCase: UpdateTagCelestialUseCase,
     private val addTagCelestialUseCase: AddTagCelestialUseCase,
-    private val deleteCrossRefDataUseCase: DeleteCrossRefDataUseCase
+    private val deleteBindingCelestialAndTag: DeleteBindingCelestialAndTag
 ) : ViewModel() {
     // main data
     private val _detailedData = MutableLiveData<FavouriteCelestialDataItem>()
@@ -71,7 +71,7 @@ open class DetailedViewModel @Inject constructor(
             val listNasaId = listOf(favouriteCelestialDataItem.nasaId)
 
             viewModelScope.launch(Dispatchers.IO) {
-                when (val resource = getTagsByNasaIdUseCase(listNasaId)) {
+                when (val resource = getAllTagsByNasaIdUseCase(listNasaId)) {
                     is ResourceUseCase.Success -> {
                         resource.data?.let { listKeyword ->
                             _tags.postValue(listKeyword)
@@ -129,7 +129,7 @@ open class DetailedViewModel @Inject constructor(
         _detailedData.value?.let { favouriteCelestial ->
             viewModelScope.launch(Dispatchers.IO) {
                 when (val resource =
-                    deleteCrossRefDataUseCase(keywordId, favouriteCelestial.celestialId)) {
+                    deleteBindingCelestialAndTag(keywordId, favouriteCelestial.celestialId)) {
                     is ResourceUseCase.Success -> {
                         resource.data?.let {
                             _eventCelestial.postValue(CelestialEvent.Delete())

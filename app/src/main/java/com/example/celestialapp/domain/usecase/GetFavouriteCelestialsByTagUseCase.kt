@@ -5,9 +5,6 @@ import com.example.celestialapp.data.repository.Resource
 import com.example.celestialapp.domain.models.FavouriteCelestialDataItem
 import com.example.celestialapp.domain.repository.LocalDataRepository
 
-/**
- * получить список небесных тел для заданного списка тегов
- */
 class GetFavouriteCelestialsByTagUseCase(
     private val localDataRepository: LocalDataRepository,
     private val localDataMapper: LocalDataMapper
@@ -17,7 +14,7 @@ class GetFavouriteCelestialsByTagUseCase(
         val resourceTagCelestials = localDataRepository.getDataByListTagId(listTagId)
 
         if (resourceTagCelestials is Resource.Success) {
-            // распакуем кросс таблицу
+            // it's cross ref table, so use flatMap
             resourceTagCelestials.data?.flatMap { tagWithCelestials ->
                 tagWithCelestials.celestialInfoEntity
             }
@@ -25,9 +22,7 @@ class GetFavouriteCelestialsByTagUseCase(
                 ?.sortedByDescending { it.dateFavouriteCreated }
                 ?.let { celestials ->
                 return ResourceUseCase.Success(
-                    localDataMapper.mapListCelestialInfoEntityToModel(
-                        celestials
-                    )
+                    localDataMapper.mapListCelestialInfoEntityToModel(celestials)
                 )
             }
         }

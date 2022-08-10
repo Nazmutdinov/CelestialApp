@@ -43,7 +43,6 @@ class AddTagCelestialUseCase(
 
     private suspend fun isTagExistingInDb(tagName: String): Boolean {
         val tagId = localDataRepository.getTagIdByName(tagName).data
-
         return tagId != null
     }
 

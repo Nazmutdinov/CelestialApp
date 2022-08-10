@@ -26,8 +26,8 @@ object DomainModule {
 
     @Provides
     @ViewModelScoped
-    fun provideDeleteCrossRefDataUseCase(localDataRepository: LocalDataRepository): DeleteCrossRefDataUseCase =
-        DeleteCrossRefDataUseCase(localDataRepository)
+    fun provideDeleteCrossRefDataUseCase(localDataRepository: LocalDataRepository): DeleteBindingCelestialAndTag =
+        DeleteBindingCelestialAndTag(localDataRepository)
 
     @Provides
     @ViewModelScoped
@@ -75,14 +75,18 @@ object DomainModule {
 
     @Provides
     @ViewModelScoped
-    fun provideGetTagsByNasaIdUseCase(localDataRepository: LocalDataRepository): GetTagsByNasaIdUseCase =
-        GetTagsByNasaIdUseCase(localDataRepository)
+    fun provideGetTagsByNasaIdUseCase(
+        localDataRepository: LocalDataRepository,
+        localDataMapper: LocalDataMapper
+    ): GetAllTagsByNasaIdUseCase =
+        GetAllTagsByNasaIdUseCase(localDataRepository, localDataMapper)
 
     @Provides
     @ViewModelScoped
     fun provideInsertTagDataUseCase(
         @ApplicationContext context: Context,
-        localDataRepository: LocalDataRepository): InsertTagDataUseCase =
+        localDataRepository: LocalDataRepository
+    ): InsertTagDataUseCase =
         InsertTagDataUseCase(context, localDataRepository)
 
     @Provides

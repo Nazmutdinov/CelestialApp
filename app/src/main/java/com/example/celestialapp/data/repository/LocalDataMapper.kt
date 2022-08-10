@@ -12,7 +12,7 @@ class LocalDataMapper(
     /**
      * маппинг тега KeywordInfoEntity из БД в модель KeywordDataItem
      */
-    fun mapTagInfoEntityToModel(
+    fun getSelectedTagDataItem(
         tagInfoEntity: TagInfoEntity
     ): TagDataItem =
         TagDataItem(
@@ -20,6 +20,16 @@ class LocalDataMapper(
             name = tagInfoEntity.name,
             selected = true,
             color = R.color.purple_200
+        )
+
+    fun getUnselectedTagDataItem(
+        tagInfoEntity: TagInfoEntity
+    ): TagDataItem =
+        TagDataItem(
+            tagId = tagInfoEntity.tagId,
+            name = tagInfoEntity.name,
+            selected = false,
+            color = R.color.white
         )
 
     /**

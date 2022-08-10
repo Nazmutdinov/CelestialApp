@@ -37,7 +37,7 @@ class GetDetailedDataUseCase(
             }
         }
 
-        return ResourceUseCase.Error("shit !${resourceDetailedData.message} ${resourceImageData.message}")
+        return ResourceUseCase.Error("${resourceDetailedData.message} ${resourceImageData.message}")
     }
 
     private suspend fun saveCelestialDataIntoDb(

@@ -6,7 +6,7 @@ import com.example.celestialapp.domain.models.TagDataItem
 import com.example.celestialapp.domain.repository.LocalDataRepository
 
 /**
- * получить список всех ключевых слов какие есть в БД
+ * get tags from local DB sorted by name
  */
 class GetAllTagsUseCase(
     private val localDataRepository: LocalDataRepository,
@@ -17,14 +17,11 @@ class GetAllTagsUseCase(
 
         if (resource is Resource.Success) {
             resource.data?.let { list ->
-                // сортировка ключевых слов по имени
                 list.sortedBy { tagInfoEntity ->
                     tagInfoEntity.name
-                }.map {
-                    // маппим ключевое слово из БД в модель
-                    localDataMapper.mapTagInfoEntityToModel(it)
-                }.let { resultList ->
-                    return ResourceUseCase.Success(resultList)
+                }.map { localDataMapper.getSelectedTagDataItem(it)
+                }.let { listOfTagDataItem ->
+                    return ResourceUseCase.Success(listOfTagDataItem)
                 }
             }
         }
