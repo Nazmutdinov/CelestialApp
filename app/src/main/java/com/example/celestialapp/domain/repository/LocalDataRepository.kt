@@ -6,59 +6,24 @@ import com.example.celestialapp.data.local.relations.CelestialWithTags
 import com.example.celestialapp.data.local.relations.TagWithCelestials
 import com.example.celestialapp.data.repository.Resource
 
-// интерфейс к локальной БД
 interface LocalDataRepository {
-    /**
-     * достать все небесные тела и теги для заданного списка nasaId небесных тел
-     */
-    suspend fun getDataByListNasaId(listNasaId: List<String>): Resource<List<CelestialWithTags>>
+    // get operations
+    suspend fun getCelestialsWithTagsByListNasaId(listNasaId: List<String>): Resource<List<CelestialWithTags>>
+    suspend fun getTagsWithCelestialsByListTagId(listTagId: List<Int>): Resource<List<TagWithCelestials>>
+    suspend fun getAllTags(): Resource<List<TagInfoEntity>>
 
     /**
-     * достать все небесные тела и теги для заданного списка ключевых слов
-     */
-    suspend fun getDataByListTagId(listTagId: List<Int>): Resource<List<TagWithCelestials>>
-
-    /**
-     * достать все теги из БД
-     */
-    suspend fun getTags(): Resource<List<TagInfoEntity>>
-
-    /**
-     * достать все теги, которых нет в списке listTagId
+     * get all tags BUT in listTagId
      */
     suspend fun getExclusiveTags(listTagId: List<Int>): Resource<List<TagInfoEntity>>
-
-    /**
-     * достать ссылку на тег в БД
-     */
     suspend fun getTagIdByName(tagName: String): Resource<Int>
-
-    /**
-     * достать ссылку на небесное тело в БД
-     */
     suspend fun getCelestialByNasaId(nasaId: String): Resource<CelestialInfoEntity>
+    suspend fun getCelestialsWithKeywordsByNasaId(nasaId: String): Resource<List<CelestialWithKeywords>>
+    suspend fun getApiKeywordsByName(keywordName: String): Resource<KeywordInfoEntity>
+    suspend fun getDateAsLongFavouriteCelestialByNasaId(nasaId: String): Resource<Long>
 
-    /**
-     * достать все небесные тела и api ключевые словаи для заданного nasaId
-     */
-    suspend fun getKeywordsByNasaId(nasaId: String): Resource<List<CelestialWithKeywords>>
-
-    /**
-     * достать api ключевое слово для заданного keywordName
-     */
-    suspend fun getKeywordsByName(keywordName: String): Resource<KeywordInfoEntity>
-
-    /**
-     * достать дату сохранения небесного тела в избранное
-     */
-    suspend fun getFavouriteDate(nasaId: String): Resource<Long>
-
-
-
-    /**
-     * сохранить данные по небесному телу в БД
-     */
-    suspend fun insertCelestialData(
+    // save operations
+    suspend fun saveCelestialDataIntoDB(
         nasaId: String,
         title: String,
         date: String,
@@ -67,55 +32,24 @@ interface LocalDataRepository {
         imagePath: String
     ): Resource<CelestialInfoEntity>
 
-    /**
-     * сохранить картинку небесноого тела в БД
-     */
-    suspend fun updateImageData(
-        nasaId: String,
-        image: ByteArray
-    ): Resource<CelestialInfoEntity>
-
-    /**
-     * сохранить дату избранного небесноого тела в БД
-     */
-    suspend fun updateFavouriteDate(
+    suspend fun updateDateFavouriteCelestialByNasaId(
         nasaId: String,
         dateFavouriteCreated: Long?
     ): Resource<CelestialInfoEntity>
 
-    /**
-     * сохранить данные по тегу в БД, получить tagId
-     */
-    suspend fun insertTagData(tagName: String): Resource<Int>
-
-    /**
-     * сохранить привязку тега и небесного тела в БД
-     */
-    suspend fun insertCelestialTagsCrossRef(
+    suspend fun saveTagIntoDBAndGetTagId(tagName: String): Resource<Int>
+    suspend fun saveBindingCelestialAndTagIntoDB(
         celestialId: Int,
         tagId: Int
     ): Resource<CelestialTagCrossRef>
 
-    /**
-     * сохранить данные по api ключевому слово в БД, получить keywordId
-     */
-    suspend fun insertKeywordData(keywordName: String): Resource<Int>
-
-    /**
-     * сохранить привязку api ключевого слова и небесного тела в БД
-     */
-    suspend fun insertCelestialKeywordsCrossRef(
+    suspend fun saveApiKeywordIntoDBAndGetId(keywordName: String): Resource<Int>
+    suspend fun saveBindingCelestialAndKeywordIntoDB(
         celestialId: Int,
         keywordId: Int
     ): Resource<CelestialKeywordCrossRef>
 
-    /**
-     * удалить тег
-     */
-    suspend fun deleteTagData(tagId: Int): Resource<Boolean>
-
-    /**
-     * удалить привязку тега и небесного тела в БД
-     */
-    suspend fun deleteCelestialTagsCrossRef(celestialId: Int, tagId: Int): Resource<Boolean>
+    // delete operations
+    suspend fun deleteTagById(tagId: Int): Resource<Boolean>
+    suspend fun deleteBindingCelestialAndTag(celestialId: Int, tagId: Int): Resource<Boolean>
 }

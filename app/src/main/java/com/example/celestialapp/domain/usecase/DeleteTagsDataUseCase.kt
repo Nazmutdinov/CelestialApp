@@ -7,7 +7,7 @@ class DeleteTagsDataUseCase(
     private val localDataRepository: LocalDataRepository
 ) {
     suspend operator fun invoke(tagId: Int): ResourceUseCase<Boolean> {
-        val resource = localDataRepository.deleteTagData(tagId)
+        val resource = localDataRepository.deleteTagById(tagId)
 
         if (resource is Resource.Success) {
             resource.data?.let { result ->

@@ -11,7 +11,7 @@ class GetFavouriteCelestialsByTagUseCase(
 ) {
     suspend operator fun invoke(listTagId: List<Int>):
             ResourceUseCase<List<FavouriteCelestialDataItem>> {
-        val resourceTagCelestials = localDataRepository.getDataByListTagId(listTagId)
+        val resourceTagCelestials = localDataRepository.getTagsWithCelestialsByListTagId(listTagId)
 
         if (resourceTagCelestials is Resource.Success) {
             // it's cross ref table, so use flatMap

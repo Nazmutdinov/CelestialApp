@@ -11,16 +11,12 @@ import com.example.celestialapp.domain.repository.LocalDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-
 class LocalDataRepositoryImpl(
     private val context: Context,
     private val db: CelestialDatabase,
     private val dispatcher: CoroutineDispatcher
 ) : LocalDataRepository {
-    /**
-     * сохранить небесное тело в БД
-     */
-    override suspend fun insertCelestialData(
+    override suspend fun saveCelestialDataIntoDB(
         nasaId: String,
         title: String,
         date: String,
@@ -37,12 +33,11 @@ class LocalDataRepositoryImpl(
                 description = description,
                 image = image,
                 imagePath = imagePath,
-                // пока небесное тело не сохранено в избранные, дата будет пустой
+                // while celestial doesn't save into DB date will be empty
                 dateFavouriteCreated = null
             )
 
             dao.insertCelestial(celestialInfoEntity)
-
             dao.getCelestialByNasaId(nasaId)?.let {
                 return@withContext Resource.Success(it)
             }
@@ -54,33 +49,14 @@ class LocalDataRepositoryImpl(
         }
     }
 
-    override suspend fun updateImageData(
+
+    override suspend fun updateDateFavouriteCelestialByNasaId(
         nasaId: String,
-        image: ByteArray
+        dateFavouriteCreated: Long?
     ): Resource<CelestialInfoEntity> = withContext(dispatcher) {
         try {
             val dao = db.getConnectCelestialDao()
-            dao.updateImage(nasaId, image)
-
-            dao.getCelestialByNasaId(nasaId)?.let {
-                return@withContext Resource.Success(it)
-            }
-
-            return@withContext Resource.Error(context.getString(R.string.insertCelestialDataError))
-
-        } catch (e: Exception) {
-            return@withContext Resource.Error("${e.message}")
-        }
-    }
-
-    override suspend fun updateFavouriteDate(
-        nasaId: String,
-        dateFavouriteCreated: Long?
-    ): Resource<CelestialInfoEntity>  = withContext(dispatcher) {
-        try {
-            val dao = db.getConnectCelestialDao()
             dao.updateDateFavouriteCreated(nasaId, dateFavouriteCreated)
-
             dao.getCelestialByNasaId(nasaId)?.let {
                 return@withContext Resource.Success(it)
             }
@@ -92,40 +68,29 @@ class LocalDataRepositoryImpl(
         }
     }
 
-    /**
-     * сохранить данные по ключевому слову в БД, получить keywordId
-     */
-    override suspend fun insertTagData(tagName: String): Resource<Int> =
+    override suspend fun saveTagIntoDBAndGetTagId(tagName: String): Resource<Int> =
         withContext(dispatcher) {
             try {
                 val dao = db.getConnectCelestialDao()
                 val tagInfoEntity = TagInfoEntity(name = tagName)
-
-                // вставка в БД
                 dao.insertTag(tagInfoEntity)
-
-                // получение id из БД
                 dao.getTagIdByName(tagName)?.let { keywordId ->
                     return@withContext Resource.Success(keywordId)
                 }
-                return@withContext Resource.Error(context.getString(R.string.insertKeywordDataError))
 
+                return@withContext Resource.Error(context.getString(R.string.insertKeywordDataError))
             } catch (e: Exception) {
                 return@withContext Resource.Error("${e.message}")
             }
         }
 
-    override suspend fun insertCelestialTagsCrossRef(
+    override suspend fun saveBindingCelestialAndTagIntoDB(
         celestialId: Int,
         tagId: Int
     ): Resource<CelestialTagCrossRef> = withContext(dispatcher) {
         return@withContext try {
             val dao = db.getConnectCelestialDao()
-            val celestialTagCrossRef = CelestialTagCrossRef(
-                celestialId,
-                tagId
-            )
-
+            val celestialTagCrossRef = CelestialTagCrossRef(celestialId, tagId)
             dao.insertCelestialTagCrossRef(celestialTagCrossRef)
 
             Resource.Success(celestialTagCrossRef)
@@ -134,36 +99,30 @@ class LocalDataRepositoryImpl(
         }
     }
 
-    override suspend fun insertKeywordData(keywordName: String): Resource<Int> =
+    override suspend fun saveApiKeywordIntoDBAndGetId(keywordName: String): Resource<Int> =
         withContext(dispatcher) {
             try {
                 val dao = db.getConnectCelestialDao()
                 val keywordInfoEntity = KeywordInfoEntity(name = keywordName)
-
                 dao.insertKeyword(keywordInfoEntity)
-
                 val data = dao.getKeywordByName(keywordName)
-
                 data?.let {
                     return@withContext Resource.Success(data.keywordId)
                 }
 
-                return@withContext  Resource.Error("пусто")
+                return@withContext Resource.Error(context.getString(R.string.emptyDataError))
             } catch (e: Exception) {
-              return@withContext  Resource.Error("${e.message}")
+                return@withContext Resource.Error("${e.message}")
             }
         }
 
-    override suspend fun insertCelestialKeywordsCrossRef(
+    override suspend fun saveBindingCelestialAndKeywordIntoDB(
         celestialId: Int,
         keywordId: Int
     ): Resource<CelestialKeywordCrossRef> = withContext(dispatcher) {
         return@withContext try {
             val dao = db.getConnectCelestialDao()
-            val celestialKeywordCrossRef = CelestialKeywordCrossRef(
-                celestialId, keywordId
-            )
-
+            val celestialKeywordCrossRef = CelestialKeywordCrossRef(celestialId, keywordId)
             dao.insertCelestialKeywordCrossRef(celestialKeywordCrossRef)
 
             Resource.Success(celestialKeywordCrossRef)
@@ -172,26 +131,19 @@ class LocalDataRepositoryImpl(
         }
     }
 
-    /**
-     * достать все ключи и небесные тела из БД для заданного списка nasaId
-     */
-    override suspend fun getDataByListNasaId(listNasaId: List<String>): Resource<List<CelestialWithTags>> =
-        withContext(dispatcher)
-        {
-            return@withContext try {
-                val dao = db.getConnectCelestialDao()
-                val data = dao.getCelestialWithTags(listNasaId)
+    override suspend fun getCelestialsWithTagsByListNasaId(listNasaId: List<String>):
+            Resource<List<CelestialWithTags>> = withContext(dispatcher) {
+        return@withContext try {
+            val dao = db.getConnectCelestialDao()
+            val data = dao.getCelestialWithTags(listNasaId)
 
-                Resource.Success(data)
-            } catch (e: Exception) {
-                Resource.Error("${e.message}")
-            }
+            Resource.Success(data)
+        } catch (e: Exception) {
+            Resource.Error("${e.message}")
         }
+    }
 
-    /**
-     * достать все небесные тела и ключи для заданного списка ключевых слов
-     */
-    override suspend fun getDataByListTagId(listTagId: List<Int>):
+    override suspend fun getTagsWithCelestialsByListTagId(listTagId: List<Int>):
             Resource<List<TagWithCelestials>> = withContext(dispatcher) {
         return@withContext try {
             val dao = db.getConnectCelestialDao()
@@ -203,7 +155,7 @@ class LocalDataRepositoryImpl(
         }
     }
 
-    override suspend fun getTags(): Resource<List<TagInfoEntity>> =
+    override suspend fun getAllTags(): Resource<List<TagInfoEntity>> =
         withContext(dispatcher) {
             return@withContext try {
                 val dao = db.getConnectCelestialDao()
@@ -247,19 +199,22 @@ class LocalDataRepositoryImpl(
             return@withContext try {
                 val dao = db.getConnectCelestialDao()
                 val data = dao.getCelestialByNasaId(nasaId)
-
                 data?.let {
                     return@withContext Resource.Success(it)
                 }
 
-                val message = context.getString(R.string.getCelestialError, nasaId)
-                return@withContext Resource.Error(message)
+                return@withContext Resource.Error(
+                    context.getString(
+                        R.string.getCelestialError,
+                        nasaId
+                    )
+                )
             } catch (e: Exception) {
                 Resource.Error("${e.message}")
             }
         }
 
-    override suspend fun getKeywordsByNasaId(nasaId: String): Resource<List<CelestialWithKeywords>> =
+    override suspend fun getCelestialsWithKeywordsByNasaId(nasaId: String): Resource<List<CelestialWithKeywords>> =
         withContext(dispatcher) {
             return@withContext try {
                 val dao = db.getConnectCelestialDao()
@@ -271,48 +226,41 @@ class LocalDataRepositoryImpl(
             }
         }
 
-    override suspend fun getKeywordsByName(keywordName: String): Resource<KeywordInfoEntity> =
+    override suspend fun getApiKeywordsByName(keywordName: String): Resource<KeywordInfoEntity> =
         withContext(dispatcher) {
             try {
                 val dao = db.getConnectCelestialDao()
                 val data = dao.getKeywordByName(keywordName)
-
                 data?.let {
                     return@withContext Resource.Success(it)
                 }
 
-                return@withContext  Resource.Error("пусто")
+                return@withContext Resource.Error(context.getString(R.string.emptyDataError))
             } catch (e: Exception) {
-              return@withContext  Resource.Error("${e.message}")
+                return@withContext Resource.Error("${e.message}")
             }
         }
 
-    override suspend fun getFavouriteDate(nasaId: String): Resource<Long> =
+    override suspend fun getDateAsLongFavouriteCelestialByNasaId(nasaId: String): Resource<Long> =
         withContext(dispatcher) {
             try {
                 val dao = db.getConnectCelestialDao()
                 val data = dao.getFavouriteDate(nasaId)
-
                 data?.let {
                     return@withContext Resource.Success(it)
                 }
 
-                return@withContext  Resource.Error("пусто")
+                return@withContext Resource.Error(context.getString(R.string.emptyDataError))
             } catch (e: Exception) {
-                return@withContext  Resource.Error("${e.message}")
+                return@withContext Resource.Error("${e.message}")
             }
         }
 
-    /**
-     * удалить ключевое слово
-     */
-    override suspend fun deleteTagData(tagId: Int): Resource<Boolean> = withContext(dispatcher) {
+    override suspend fun deleteTagById(tagId: Int): Resource<Boolean> = withContext(dispatcher) {
         return@withContext try {
             val dao = db.getConnectCelestialDao()
-            // удалим связь ключевого слова и любых небесных тел
+            // delete binding tag and any celestials
             dao.deleteTagCrossRef(tagId)
-
-            // удалим ключевое слово
             dao.deleteTag(tagId)
 
             Resource.Success(true)
@@ -321,10 +269,7 @@ class LocalDataRepositoryImpl(
         }
     }
 
-    /**
-     * удалить связь ключевого слова и небесного тела в БД
-     */
-    override suspend fun deleteCelestialTagsCrossRef(
+    override suspend fun deleteBindingCelestialAndTag(
         celestialId: Int,
         tagId: Int
     ): Resource<Boolean> = withContext(dispatcher) {
@@ -338,3 +283,4 @@ class LocalDataRepositoryImpl(
         }
     }
 }
+

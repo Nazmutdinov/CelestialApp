@@ -22,12 +22,12 @@ class AddTagCelestialUseCase(
         if (existsTags) return ResourceUseCase.Error(context.getString(R.string.insertKeywordDataUseCaseError))
 
         // if there is not this tag at db, then add tag
-        val resourceInsertTag = localDataRepository.insertTagData(tagName)
+        val resourceInsertTag = localDataRepository.saveTagIntoDBAndGetTagId(tagName)
         if (resourceInsertTag is Resource.Error) return ResourceUseCase.Error("${resourceInsertTag.message}")
 
         resourceInsertTag.data?.let { keywordId ->
             val resourceCrossRef =
-                localDataRepository.insertCelestialTagsCrossRef(
+                localDataRepository.saveBindingCelestialAndTagIntoDB(
                     favouriteCelestialDataItem.celestialId,
                     keywordId
                 )
@@ -48,10 +48,10 @@ class AddTagCelestialUseCase(
 
 
     private suspend fun updateDateForCelestialIntoDb(nasaId: String) {
-        val resource = localDataRepository.getFavouriteDate(nasaId)
+        val resource = localDataRepository.getDateAsLongFavouriteCelestialByNasaId(nasaId)
 
         // if there in no date in db, then save current date into db
-        if (resource is Resource.Error) localDataRepository.updateFavouriteDate(nasaId, Date().time)
+        if (resource is Resource.Error) localDataRepository.updateDateFavouriteCelestialByNasaId(nasaId, Date().time)
     }
 }
 

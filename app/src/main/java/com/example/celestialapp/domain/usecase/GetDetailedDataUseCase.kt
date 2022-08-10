@@ -69,7 +69,7 @@ class GetDetailedDataUseCase(
         detailedDataItem: Data,
         imagePath: String,
         image: Bitmap?
-    ): Resource<CelestialInfoEntity> = localDataRepository.insertCelestialData(
+    ): Resource<CelestialInfoEntity> = localDataRepository.saveCelestialDataIntoDB(
         nasaId = detailedDataItem.nasa_id,
         title = detailedDataItem.title,
         date = detailedDataItem.date_created,
@@ -83,7 +83,7 @@ class GetDetailedDataUseCase(
         keywordNames: List<String>
     ) {
         keywordNames.forEach { keywordName ->
-            val resourceKeyword = localDataRepository.getKeywordsByName(keywordName)
+            val resourceKeyword = localDataRepository.getApiKeywordsByName(keywordName)
 
             if (resourceKeyword is Resource.Success) {
                 // is there keyword at cache?
@@ -91,7 +91,7 @@ class GetDetailedDataUseCase(
             } else {
                 // there is no keyword in DB yet
                 // therefore we need save it into DB
-                val resourceNewKeyword = localDataRepository.insertKeywordData(keywordName)
+                val resourceNewKeyword = localDataRepository.saveApiKeywordIntoDBAndGetId(keywordName)
                 insertBindCelestialAndKeyword(celestialId, null, resourceNewKeyword)
             }
         }
@@ -104,12 +104,12 @@ class GetDetailedDataUseCase(
     ) {
         // either keyword already exists
         resourceKeywordInfoEntity?.data?.keywordId?.let { keywordId ->
-            localDataRepository.insertCelestialKeywordsCrossRef(celestialId, keywordId)
+            localDataRepository.saveBindingCelestialAndKeywordIntoDB(celestialId, keywordId)
         }
 
         // either keyword has been created and this it's id
         resourceKeywordId?.data?.let { keywordId ->
-            localDataRepository.insertCelestialKeywordsCrossRef(celestialId, keywordId)
+            localDataRepository.saveBindingCelestialAndKeywordIntoDB(celestialId, keywordId)
         }
     }
 

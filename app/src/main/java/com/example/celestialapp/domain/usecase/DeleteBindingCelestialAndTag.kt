@@ -10,7 +10,7 @@ class DeleteBindingCelestialAndTag(
         tagId: Int,
         celestialId: Int
     ): ResourceUseCase<Boolean> {
-        val resource = localDataRepository.deleteCelestialTagsCrossRef(celestialId, tagId)
+        val resource = localDataRepository.deleteBindingCelestialAndTag(celestialId, tagId)
 
         if (resource is Resource.Success) {
             resource.data?.let {

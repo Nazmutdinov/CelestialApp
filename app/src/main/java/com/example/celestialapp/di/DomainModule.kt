@@ -91,6 +91,6 @@ object DomainModule {
 
     @Provides
     @ViewModelScoped
-    fun provideUpdateTagCelestialUseCase(localDataRepository: LocalDataRepository): UpdateTagCelestialUseCase =
-        UpdateTagCelestialUseCase(localDataRepository)
+    fun provideUpdateTagCelestialUseCase(localDataRepository: LocalDataRepository): BindTagToCelestialUseCase =
+        BindTagToCelestialUseCase(localDataRepository)
 }

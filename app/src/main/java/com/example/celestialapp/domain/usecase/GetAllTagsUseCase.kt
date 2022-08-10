@@ -13,7 +13,7 @@ class GetAllTagsUseCase(
     private val localDataMapper: LocalDataMapper
 ) {
     suspend operator fun invoke(): ResourceUseCase<List<TagDataItem>> {
-        val resource = localDataRepository.getTags()
+        val resource = localDataRepository.getAllTags()
 
         if (resource is Resource.Success) {
             resource.data?.let { list ->

@@ -19,7 +19,7 @@ open class DetailedViewModel @Inject constructor(
     private val getDetailedDataUseCase: GetDetailedDataUseCase,
     private val getAllTagsByNasaIdUseCase: GetAllTagsByNasaIdUseCase,
     private val getKeywordsByNasaIdUseCase: GetKeywordsByNasaIdUseCase,
-    private val updateTagCelestialUseCase: UpdateTagCelestialUseCase,
+    private val bindTagToCelestialUseCase: BindTagToCelestialUseCase,
     private val addTagCelestialUseCase: AddTagCelestialUseCase,
     private val deleteBindingCelestialAndTag: DeleteBindingCelestialAndTag
 ) : ViewModel() {
@@ -110,7 +110,7 @@ open class DetailedViewModel @Inject constructor(
     private fun saveFavouriteCelestial(tagId: Int) {
         _detailedData.value?.let { favouriteCelestial ->
             viewModelScope.launch(Dispatchers.IO) {
-                when (val resource = updateTagCelestialUseCase(
+                when (val resource = bindTagToCelestialUseCase(
                     tagId,
                     favouriteCelestial
                 )) {

@@ -10,7 +10,7 @@ class GetAllTagsByNasaIdUseCase(
     private val localDataMapper: LocalDataMapper
 ) {
     suspend operator fun invoke(listNasaId: List<String>): ResourceUseCase<List<TagDataItem>> {
-        val resourceWithCelestial = localDataRepository.getDataByListNasaId(listNasaId)
+        val resourceWithCelestial = localDataRepository.getCelestialsWithTagsByListNasaId(listNasaId)
         val tagsWithCelestialData = resourceWithCelestial.data
 
         if (resourceWithCelestial is Resource.Success) {

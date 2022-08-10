@@ -42,6 +42,7 @@
     <string name="insertKeywordDataError">error inserting keyword and getting keywordId</string>
     <string name="insertCelestialDataError">error inserting celestial</string>
     <string name="getLargeImageError">error loading image</string>
+    <string name="emptyDataError">error: data is empty</string>
 
 
     <!-- сообщения в окне-->

@@ -5,7 +5,7 @@ import com.example.celestialapp.domain.repository.LocalDataRepository
 
 class GetKeywordsByNasaIdUseCase(private val localDataRepository: LocalDataRepository) {
     suspend operator fun invoke(nasaId: String): ResourceUseCase<List<String>> {
-        val resourceCelestialWithKeywords = localDataRepository.getKeywordsByNasaId(nasaId)
+        val resourceCelestialWithKeywords = localDataRepository.getCelestialsWithKeywordsByNasaId(nasaId)
 
         if (resourceCelestialWithKeywords is Resource.Success) {
             resourceCelestialWithKeywords.data?.let { listOfCelestialWithKeywords ->
